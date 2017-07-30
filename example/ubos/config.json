@@ -2,12 +2,12 @@
     "parameters" : {
         "channel" : {
             "type" : {
-                "enum" : {
+                "enum" : [
                     "dev",
                     "red",
                     "yellow",
                     "green"
-                }
+                ]
             },
             "description" : "release channel"
         },
