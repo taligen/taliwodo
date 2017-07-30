@@ -1,0 +1,18 @@
+{
+    "parameters" : {
+        "channel" : {
+            "type" : {
+                "enum" : {
+                    "dev",
+                    "red",
+                    "yellow",
+                    "green"
+                }
+            },
+            "description" : "release channel"
+        },
+        "device" : {
+            "description" : "device type, e.g. Raspberry Pi or PC"
+        }
+    }
+}

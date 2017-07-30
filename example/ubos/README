@@ -1,0 +1,8 @@
+Invoke like this:
+
+gtp full-all channel=red
+
+gtp full channel=red device=rpi
+
+gtp touch channel=red device=rpi
+
