@@ -1,0 +1,77 @@
+{
+    "generated": "2017-08-02 13:59:56.286570", 
+    "name": "app_with_ids.tl", 
+    "parameters": {}, 
+    "steps": [
+        {
+            "a": {
+                "description": "sudo ubos-admin createsite\n   Specify * as the site, $app as the app, and fill out the rest of the questions\n", 
+                "raw_description": "sudo ubos-admin createsite\n   Specify * as the site, $app as the app, and fill out the rest of the questions\n"
+            }, 
+            "id": "create", 
+            "o": {
+                "description": "UBOS thinks for a while, prints a URL (note as URL) and returns to shell prompt", 
+                "raw_description": "UBOS thinks for a while, prints a URL (note as URL) and returns to shell prompt"
+            }, 
+            "order": 1
+        }, 
+        {
+            "a": {
+                "description": "ubos-admin listsites", 
+                "raw_description": "ubos-admin listsites"
+            }, 
+            "id": "list", 
+            "o": {
+                "description": "prints out the site you just created", 
+                "raw_description": "prints out the site you just created"
+            }, 
+            "order": 2
+        }, 
+        {
+            "a": {
+                "description": "With a web browser, visit URL", 
+                "raw_description": "With a web browser, visit URL"
+            }, 
+            "id": "app", 
+            "o": {
+                "description": "The app's front page comes up", 
+                "raw_description": "The app's front page comes up"
+            }, 
+            "order": 3
+        }, 
+        {
+            "a": {
+                "description": "Log into the app with admin/admin", 
+                "raw_description": "Log into the app with admin/admin"
+            }, 
+            "o": {
+                "description": "Login successful", 
+                "raw_description": "Login successful"
+            }, 
+            "order": 4
+        }, 
+        {
+            "a": {
+                "description": "sudo ubos-admin undeploy -a", 
+                "raw_description": "sudo ubos-admin undeploy -a"
+            }, 
+            "o": {
+                "description": "UBOS thinks for a while, returns to shell prompt", 
+                "raw_description": "UBOS thinks for a while, returns to shell prompt"
+            }, 
+            "order": 5
+        }, 
+        {
+            "a": {
+                "description": "ubos-admin listsites", 
+                "raw_description": "ubos-admin listsites"
+            }, 
+            "id": "listagain", 
+            "o": {
+                "description": "the site is not printed any more", 
+                "raw_description": "the site is not printed any more"
+            }, 
+            "order": 6
+        }
+    ]
+}

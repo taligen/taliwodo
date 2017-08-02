@@ -3,17 +3,19 @@
 import argparse
 import re
 import datetime
+import json
+import os
 
 
 
-
-def add_description(step, section, description):
+def add_original_description(step, section, description):
     if section == "id":
         step["id"] = description
     else:
         ss = step.get(section, {})
-        d = ss.get("description", "")
+        d = ss.get("raw_description", "")
         d += description
+        ss["raw_description"] = d
         ss["description"] = d
         step[section] = ss
     return step
@@ -42,6 +44,7 @@ def read_through_file(filename):
             steps = add_step(steps, step, section)
             section = ""
             step = {"id": str(step_num)}
+            step = {"order": step_num}
             step_num += 1
         else:
             linematch = re.match("([A-Za-z]+):\s(.*)", line)
@@ -50,7 +53,7 @@ def read_through_file(filename):
                 description = linematch.group(2)
             else:
                 description = "\n"+ line
-            add_description(step, section, description)
+            add_original_description(step, section, description)
     steps = add_step(steps, step, section)
     return steps
 
@@ -65,13 +68,12 @@ def main():
     args = parse_arguments()
 
     script = {"name": args.tl_file}
-    script["generated"] = datetime.datetime.now()
+    script["generated"] = str(datetime.datetime.now())
     script["parameters"] = {}
     script["steps"] = read_through_file(args.tl_file)
 
-    print(script)
-    # for step in steps:
-    #     print(step)
+    with open(os.path.splitext(args.tl_file)[0]+'.json', 'w') as fp:
+        json.dump(script, fp, sort_keys=True, indent=4)
 
 
 
