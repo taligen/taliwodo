@@ -20,32 +20,45 @@ def add_original_description(step, section, description):
         step[section] = ss
     return step
 
+def add_comment(script, step, section, comment):
+    if section == "":
+        c = step.get("comment", "")
+        step["comment"] = c + comment
+    else:
+        ss = step.get(section, {})
+        c = ss.get("comment", "")
+        c += comment
+        ss["comment"] = c
+        step[section] = ss
+    return step
+
+
 
 def add_step(steps, step, section):
-    if section != "":
+    if section != "" or step["comment"]:
         steps.append(step)
     return steps
 
 
-def read_through_file(filename):
+def read_through_file(filename, script):
     file = open(filename, "r")
     lines = file.readlines()
     file.close()
 
     steps = []
     step_num = 1
-    step = {}
+    step = {"id": str(step_num), "order": step_num}
 
     section = ""
     for line in lines:
         if line[0] == '#':
-            pass
+            add_comment(script, step, section, line)
         elif line.strip() == '':
             steps = add_step(steps, step, section)
+            if section != "" or step["comment"]:
+                step_num += 1
+                step = {"id": str(step_num), "order": step_num}
             section = ""
-            step = {"id": str(step_num)}
-            step = {"order": step_num}
-            step_num += 1
         else:
             linematch = re.match("([A-Za-z]+):\s(.*)", line)
             if linematch:
@@ -70,7 +83,7 @@ def main():
     script = {"name": args.tl_file}
     script["generated"] = str(datetime.datetime.now())
     script["parameters"] = {}
-    script["steps"] = read_through_file(args.tl_file)
+    script["steps"] = read_through_file(args.tl_file, script)
 
     dt = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 

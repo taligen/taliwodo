@@ -7,8 +7,10 @@ A: sudo ubos-admin createsite
    Specify * as the site, $app as the app, and fill out the rest of the questions
 O: UBOS thinks for a while, prints a URL (note as URL) and returns to shell prompt
 
+# check site in list
 ID: list
 A: ubos-admin listsites
+# don't need sudo for this ubos-admin call
 O: prints out the site you just created
 
 ID: app
