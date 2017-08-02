@@ -72,7 +72,9 @@ def main():
     script["parameters"] = {}
     script["steps"] = read_through_file(args.tl_file)
 
-    with open(os.path.splitext(args.tl_file)[0]+'.json', 'w') as fp:
+    dt = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+
+    with open(dt+"."+os.path.splitext(args.tl_file)[0]+'.json', 'w') as fp:
         json.dump(script, fp, sort_keys=True, indent=4)
 
 
