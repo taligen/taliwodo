@@ -7,11 +7,14 @@ import re
 
 
 def add_description(step, section, description):
-    ss = step.get(section, {})
-    d = ss.get("description", "")
-    d += description
-    ss["description"] = d
-    step[section] = ss
+    if section == "id":
+        step["id"] = description
+    else:
+        ss = step.get(section, {})
+        d = ss.get("description", "")
+        d += description
+        ss["description"] = d
+        step[section] = ss
     return step
 
 
@@ -27,6 +30,7 @@ def read_through_file(filename):
     file.close()
 
     steps = []
+    step_num = 1
     step = {}
 
     section = ""
@@ -36,9 +40,10 @@ def read_through_file(filename):
         elif line.strip() == '':
             steps = add_step(steps, step, section)
             section = ""
-            step = {}
+            step = {"id": str(step_num)}
+            step_num += 1
         else:
-            linematch = re.match("([A-Za-z]{1}):\s(.*)", line)
+            linematch = re.match("([A-Za-z]+):\s(.*)", line)
             if linematch:
                 section = linematch.group(1).lower()
                 description = linematch.group(2)
