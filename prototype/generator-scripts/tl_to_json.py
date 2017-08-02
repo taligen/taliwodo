@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 import argparse
 import re
+import datetime
 
 
 
@@ -62,10 +63,15 @@ def parse_arguments():
 
 def main():
     args = parse_arguments()
-    steps = read_through_file(args.tl_file)
 
-    for step in steps:
-        print(step)
+    script = {"name": args.tl_file}
+    script["generated"] = datetime.datetime.now()
+    script["parameters"] = {}
+    script["steps"] = read_through_file(args.tl_file)
+
+    print(script)
+    # for step in steps:
+    #     print(step)
 
 
 
