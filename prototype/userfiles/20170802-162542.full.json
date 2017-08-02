@@ -1,0 +1,16 @@
+{
+    "generated": "2017-08-02 16:25:42.682701", 
+    "name": "full.tl", 
+    "parameters": {}, 
+    "steps": [
+        {
+            "comment": "#\n# Full test plan for a particular device\n#\n", 
+            "id": "1", 
+            "order": 1
+        }, 
+        {
+            "id": "2", 
+            "order": 2
+        }
+    ]
+}

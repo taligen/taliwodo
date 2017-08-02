@@ -33,9 +33,8 @@ def add_comment(script, step, section, comment):
     return step
 
 
-
 def add_step(steps, step, section):
-    if section != "" or step["comment"]:
+    if section != "" or "comment" in step or "call" in step:
         steps.append(step)
     return steps
 
@@ -55,18 +54,37 @@ def read_through_file(filename, script):
             add_comment(script, step, section, line)
         elif line.strip() == '':
             steps = add_step(steps, step, section)
-            if section != "" or step["comment"]:
+            if section != "" or "comment" in step:
                 step_num += 1
                 step = {"id": str(step_num), "order": step_num}
             section = ""
         else:
-            linematch = re.match("([A-Za-z]+):\s(.*)", line)
+            last_section = section
+            linematch = re.match("([A-Za-z]+):\s*(.*)", line)
             if linematch:
                 section = linematch.group(1).lower()
                 description = linematch.group(2)
             else:
                 description = "\n"+ line
-            add_original_description(step, section, description)
+            if linematch and section == "call":
+                steps = add_step(steps, step, last_section)
+
+                if last_section != "" or "comment" in step:
+                    step_num += 1
+                    step = {"id": str(step_num), "order": step_num}
+                section = ""
+                step["call"] = linematch.group(2)
+                call_file_match = re.match("(.+)\((.*)\)\s*", linematch.group(2))
+                call_file = call_file_match.group(1) + ".tl"
+                step["name"] = call_file
+                step["parameters"] = call_file_match.group(2).strip()
+                step["steps"] = read_through_file(call_file, step)
+                steps = add_step(steps, step, section)
+
+                step_num += 1
+                step = {"id": str(step_num), "order": step_num}
+            else:
+                add_original_description(step, section, description)
     steps = add_step(steps, step, section)
     return steps
 
