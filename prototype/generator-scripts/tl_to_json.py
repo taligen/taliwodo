@@ -5,6 +5,7 @@ import re
 import datetime
 import json
 import os
+from collections import deque
 
 
 
@@ -39,7 +40,19 @@ def add_step(steps, step, section):
     return steps
 
 
-def read_through_file(filename, script):
+def read_through_file(filename, script, parsed_scripts, filestack):
+    if filename in parsed_scripts:
+        # print("found already parsed " + filename)
+        return parsed_scripts[filename]
+
+    if filename in filestack:
+        print("recursion cycle: " 
+            + filename + " called when already in the stack: "
+            + str(filestack))
+        return ["recursion cycle: " 
+            + filename + " called when already in the stack: "
+            + str(filestack)]
+
     file = open(filename, "r")
     lines = file.readlines()
     file.close()
@@ -78,7 +91,10 @@ def read_through_file(filename, script):
                 call_file = call_file_match.group(1) + ".tl"
                 step["name"] = call_file
                 step["parameters"] = call_file_match.group(2).strip()
-                step["steps"] = read_through_file(call_file, step)
+                filestack.append(filename)
+                step["steps"] = read_through_file(call_file, step, 
+                        parsed_scripts, filestack)
+                filestack.pop()
                 steps = add_step(steps, step, section)
 
                 step_num += 1
@@ -86,6 +102,7 @@ def read_through_file(filename, script):
             else:
                 add_original_description(step, section, description)
     steps = add_step(steps, step, section)
+    parsed_scripts[filename] = steps
     return steps
 
 
@@ -101,7 +118,7 @@ def main():
     script = {"name": args.tl_file}
     script["generated"] = str(datetime.datetime.now())
     script["parameters"] = {}
-    script["steps"] = read_through_file(args.tl_file, script)
+    script["steps"] = read_through_file(args.tl_file, script, {}, deque())
 
     dt = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
