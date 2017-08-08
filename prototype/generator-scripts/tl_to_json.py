@@ -40,6 +40,17 @@ def add_step(steps, step, section):
     return steps
 
 
+def arglist_to_paramdict(arglist):
+    if isinstance(arglist, basestring):
+        return arglist_to_paramdict(arglist.split(","))
+    paramdict = {}
+    for arg in arglist:
+        if arg.strip() != '':
+            splitlist = arg.split("=")
+            paramdict[splitlist[0].strip()] = splitlist[1].strip()
+    return paramdict
+
+
 def read_through_file(filename, script, parsed_scripts, filestack):
     if filename in parsed_scripts:
         # print("found already parsed " + filename)
@@ -90,8 +101,10 @@ def read_through_file(filename, script, parsed_scripts, filestack):
                 call_file_match = re.match("(.+)\((.*)\)\s*", linematch.group(2))
                 call_file = call_file_match.group(1) + ".tl"
                 step["name"] = call_file
-                step["parameters"] = call_file_match.group(2).strip()
+                step["parameters"] = arglist_to_paramdict(call_file_match.group(2))
                 filestack.append(filename)
+                if os.path.dirname(filename) != '':
+                    call_file = os.path.dirname(filename) + "/" + call_file
                 step["steps"] = read_through_file(call_file, step, 
                         parsed_scripts, filestack)
                 filestack.pop()
@@ -109,24 +122,50 @@ def read_through_file(filename, script, parsed_scripts, filestack):
 def parse_arguments():
     argparser = argparse.ArgumentParser(description="taligen: generate json file from tl file")
     argparser.add_argument("tl_file", type=str, help=".tl (task list) file to generate from")
+    argparser.add_argument("substitutions", type=str, nargs="*", help="substitutions to make in the file")
     return argparser.parse_args()
+
+
+def collect_pass(args):
+    script = {"name": args.tl_file}
+    script["generated"] = str(datetime.datetime.now())
+    script["parameters"] = arglist_to_paramdict(args.substitutions)
+    script["steps"] = read_through_file(args.tl_file, script, {}, deque())
+    return script
+
+
+def replace_within_description(step, part, parameters):
+    if part in step and len(parameters) > 0:
+        for key, value in parameters.iteritems():
+            step[part]["description"] = re.sub("\\$"+key, value, step[part]["description"])
+    return step
+
+
+def replace_pass(script, parameters):
+    myparameters = parameters.copy()
+    myparameters.update(script["parameters"])
+    if len(myparameters) > 0:
+        for step in script["steps"]:
+            step = replace_within_description(step, "a", myparameters)
+            step = replace_within_description(step, "o", myparameters)
+            if "steps" in step:
+                step = replace_pass(step, myparameters)
+    return script
 
 
 def main():
     args = parse_arguments()
 
-    script = {"name": args.tl_file}
-    script["generated"] = str(datetime.datetime.now())
-    script["parameters"] = {}
-    script["steps"] = read_through_file(args.tl_file, script, {}, deque())
-
+    script = collect_pass(args)
     dt = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
     with open(dt+"."+os.path.splitext(args.tl_file)[0]+'.json', 'w') as fp:
         json.dump(script, fp, sort_keys=True, indent=4)
 
-
+    script = replace_pass(script, {})
+    
+    with open(dt+"."+os.path.splitext(args.tl_file)[0]+'.json', 'w') as fp:
+        json.dump(script, fp, sort_keys=True, indent=4)
 
 
 main()
- 

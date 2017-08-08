@@ -13,6 +13,9 @@ A: ubos-admin listsites
 # don't need sudo for this ubos-admin call
 O: prints out the site you just created
 
+ID: Tammy's addition
+A: try out $app and see if you like it
+
 ID: app
 A: With a web browser, visit URL
 O: The app's front page comes up
