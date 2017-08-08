@@ -50,6 +50,14 @@ def arglist_to_paramdict(arglist):
             paramdict[splitlist[0].strip()] = splitlist[1].strip()
     return paramdict
 
+def params_to_string(substitutions):
+    paramstring = ""
+    for substitution in substitutions:
+        paramstring += "," + substitution
+    if paramstring != "":
+        paramstring = "." + paramstring[1:]
+    return paramstring
+
 
 def read_through_file(filename, script, parsed_scripts, filestack):
     if filename in parsed_scripts:
@@ -159,12 +167,12 @@ def main():
     script = collect_pass(args)
     dt = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
-    with open(dt+"."+os.path.splitext(args.tl_file)[0]+'.json', 'w') as fp:
-        json.dump(script, fp, sort_keys=True, indent=4)
+    # with open(dt+"."+os.path.splitext(args.tl_file)[0]+'.json', 'w') as fp:
+    #     json.dump(script, fp, sort_keys=True, indent=4)
 
     script = replace_pass(script, {})
     
-    with open(dt+"."+os.path.splitext(args.tl_file)[0]+'.json', 'w') as fp:
+    with open(dt+"."+os.path.splitext(args.tl_file)[0]+params_to_string(args.substitutions)+'.json', 'w') as fp:
         json.dump(script, fp, sort_keys=True, indent=4)
 
 
