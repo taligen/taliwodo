@@ -164,16 +164,15 @@ def replace_pass(script, parameters):
 def main():
     args = parse_arguments()
 
-    script = collect_pass(args)
     dt = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    json_filename = dt+"."+os.path.splitext(args.tl_file)[0]+params_to_string(args.substitutions)+'.json'
 
-    # with open(dt+"."+os.path.splitext(args.tl_file)[0]+'.json', 'w') as fp:
-    #     json.dump(script, fp, sort_keys=True, indent=4)
-
+    script = collect_pass(args)
+    script["filename"] = json_filename
     script = replace_pass(script, {})
     
-    with open(dt+"."+os.path.splitext(args.tl_file)[0]+params_to_string(args.substitutions)+'.json', 'w') as fp:
-        json.dump(script, fp, sort_keys=True, indent=4)
+    with open(json_filename, 'w') as fp:
+        json.dump(script, fp, indent=4)
 
 
 main()
