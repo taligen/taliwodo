@@ -1,10 +1,19 @@
 #! /usr/bin/env python
 # -*- coding: UTF-8 -*-
+#
+# Render a task list
+#
+
 import argparse
 import json
 import os
 
 
+def doIt( environ, start_response ) :
+  response_headers = [('Content-type','text/html')]
+  start_response( '200 OK', response_headers)
+
+  return '<p>This is the render page</p>'
 
 def generate_html_from_json(filename):
     print("generating html from " + filename)
@@ -24,8 +33,8 @@ def generate_html_head():
     <head>\n\
         <title>full taligen script</title>\n\
         <meta charset="UTF-8">\n\
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">\n\
-		<link rel="stylesheet" href="taligen.css">\n\
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">\n\
+        <link rel="stylesheet" href="CONTEXT/css/default.css">\n\
 \n\
     </head>'
 
@@ -119,15 +128,3 @@ def html_escape(text):
          "<": "&lt;",
          }
     return "".join(html_escape_table.get(c,c) for c in text)
-   
-
-
-def main():
-    args = parse_arguments()
-
-    with open(args.json_file+".html", "w") as file:
-        file.write(generate_html_from_json(args.json_file)) 
-
-
-
-main()

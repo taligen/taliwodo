@@ -6,6 +6,12 @@ import os
 import datetime
 
 
+def doIt( environ, start_response ) :
+  response_headers = [('Content-type','text/html')]
+  start_response( '200 OK', response_headers)
+
+  return '<p>This is the update page</p>'
+
 def parse_arguments():
     argparser = argparse.ArgumentParser(description="taligen: update json file from html POST")
     argparser.add_argument("json_file", type=str, help=".json (generated json task list) file to be updated")
@@ -33,7 +39,7 @@ def update_steps(parent_id, steps, postlist):
     return steps
 
 
-def main():
+def xxxxmain():
     args = parse_arguments()
 
     with open(args.json_file, "r") as jfile, open(args.post_file, "r") as pfile:
@@ -50,6 +56,3 @@ def main():
     with open(args.json_file+".json", "w") as jofile:
         json.dump(tasklist, jofile, indent=4)
 
-
-
-main()

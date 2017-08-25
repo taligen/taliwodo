@@ -1,0 +1,40 @@
+{
+    "type" : "app",
+
+    "roles" : {
+        "apache2" : {
+            "defaultcontext" : "/taliworkdown",
+            "depends" : [
+                "mod_wsgi2"
+            ],
+            "apache2modules" : [
+                "wsgi"
+            ],
+           "appconfigitems" : [
+                {
+                    "type"         : "directory",
+                    "name"         : "${appconfig.datadir}"
+                },
+                {
+                    "type"         : "directory",
+                    "name"         : "${appconfig.datadir}/tasklists",
+                    "retentionpolicy" : "keep",
+                    "retentionbucket" : "tasklists"
+                },
+                {
+                    "type"         : "file",
+                    "name"         : "${appconfig.datadir}/config.py",
+                    "template"     : "tmpl/config.py.tmpl",
+                    "templatelang" : "varsubst"
+                },
+                {
+                    "type"         : "file",
+                    "name"         : "${appconfig.apache2.appconfigfragmentfile}",
+                    "template"     : "tmpl/htaccess.tmpl",
+                    "templatelang" : "varsubst"
+                }
+            ]
+        }
+    }
+}
+
