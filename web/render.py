@@ -9,11 +9,11 @@ import json
 import os
 
 
-def doIt( environ, start_response ) :
+def doIt( tlId, environ, start_response ) :
   response_headers = [('Content-type','text/html')]
   start_response( '200 OK', response_headers)
 
-  return '<p>This is the render page</p>'
+  return '<p>This is the render page, tlId=' + tlId + '</p>'
 
 def generate_html_from_json(filename):
     print("generating html from " + filename)

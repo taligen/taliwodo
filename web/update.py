@@ -6,11 +6,11 @@ import os
 import datetime
 
 
-def doIt( environ, start_response ) :
+def doIt( tlId, environ, start_response ) :
   response_headers = [('Content-type','text/html')]
   start_response( '200 OK', response_headers)
 
-  return '<p>This is the update page</p>'
+  return '<p>This is the update page, tlId=' + tlId + '</p>'
 
 def parse_arguments():
     argparser = argparse.ArgumentParser(description="taligen: update json file from html POST")
