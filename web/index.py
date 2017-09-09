@@ -24,7 +24,7 @@ def application( environ, start_response ) :
       content = render.doIt( tlId, environ, start_response )
   else :
     content = error.doIt( '404 Not Found', environ, start_response )
-    content += "<p>Not found: " + environ['PATH_INFO'] + "</p>\n"
+    content += "<p>File not found: " + environ['PATH_INFO'] + "</p>\n"
 
   return content
 
