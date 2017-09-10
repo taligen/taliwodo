@@ -7,6 +7,7 @@
 import argparse
 import json
 import os
+import re
 import config
 
 def doIt( tlId, environ, start_response ) :
@@ -104,7 +105,7 @@ def generate_html_table_row(parent_id, step, part):
     html_table_row = '<tr class=' + part + '>\n'
     step_part_id = parent_id + '.' + step["id"]+ '.' + part
     html_table_row += '<td>' + step_part_id + '</td>\n'    #id
-    html_table_row += '<td>' + step[part]["description"] + '</td>\n'    #description
+    html_table_row += '<td>' + process_markup( step[part]['description'] ) + '</td>\n'    #description
     html_table_row += '<td><input type="radio" name="result'+ step_part_id + '" value="passed"></td>\n'
     html_table_row += '<td><input type="radio" name="result'+ step_part_id + '" value="failed"></td>\n'
     html_table_row += '<td><input type="radio" name="result'+ step_part_id + '" value="not done"></td>\n'
@@ -133,3 +134,7 @@ def html_escape(text):
          "<": "&lt;",
          }
     return "".join(html_escape_table.get(c,c) for c in text)
+
+def process_markup(markup):
+    ret = re.sub( r'`([^`]*)`', '<code>\\1</code>', markup );
+    return ret
