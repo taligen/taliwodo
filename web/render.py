@@ -33,7 +33,7 @@ def generate_html_head():
 \n\
 <html lang="en-US">\n\
     <head>\n\
-        <title>full taligen script</title>\n\
+        <title>Taligen script</title>\n\
         <meta name="viewport" content="width=device-width, initial-scale=1.0">\n\
 \n\
         <link rel="stylesheet" href="'+config.CONTEXT+'/css/default.css">\n\
@@ -53,9 +53,9 @@ def generate_html_form(filename, d):
     html_form = '<form action="http://localhost:9000/taligen" method="post">\n'
     print(d["name"])
     html_form += '<h1>'+d["name"]+'</h1>\n'
-    html_form += '<h3>generated: "'+d["generated"]+'"</h3>\n'
+    html_form += '<h3>Generated: '+d["generated"]+'</h3>\n'
     plist = generate_parameter_list(d["parameters"])
-    html_form += '<h3>parameters: '+ plist +'</h3>\n'
+#    html_form += '<h3>parameters: '+ plist +'</h3>\n'
     html_form += '<input type="hidden" name="json_filename" value="' + filename + '">\n'
     html_form += '<input type="hidden" name="tl_filename" value="' + d.get("name", "") + '">\n'
     html_form += '<input type="hidden" name="generated" value="' + d["generated"] + '">\n'
@@ -70,7 +70,7 @@ def generate_html_form(filename, d):
 def generate_html_table(steps):
     html_table = '<table>\n'
     html_table += generate_html_table_header()
-    html_table += generate_html_table_bodies("", steps)
+    html_table += generate_html_table_bodies(None, steps)
     html_table += '</table>\n'
     return html_table
 
@@ -90,7 +90,7 @@ def generate_html_table_bodies(parent_id, steps):
         if "a" in step:
             html_table_bodies += generate_html_table_body(parent_id, step)
         elif "call" in step:
-            html_table_bodies += generate_html_table_bodies(parent_id+"."+step["id"], step["steps"])
+            html_table_bodies += generate_html_table_bodies(generate_sub_id(parent_id,step["id"]), step["steps"])
     return html_table_bodies
 
 def generate_html_table_body(parent_id, step):
@@ -103,7 +103,7 @@ def generate_html_table_body(parent_id, step):
 
 def generate_html_table_row(parent_id, step, part):
     html_table_row = '<tr class=' + part + '>\n'
-    step_part_id = parent_id + '.' + step["id"]+ '.' + part
+    step_part_id = generate_sub_id(parent_id, step["id"]) + '.' + part
     html_table_row += '<td>' + step_part_id + '</td>\n'    #id
     html_table_row += '<td>' + process_markup( step[part]['description'] ) + '</td>\n'    #description
     html_table_row += '<td><input type="radio" name="result'+ step_part_id + '" value="passed"></td>\n'
@@ -137,4 +137,11 @@ def html_escape(text):
 
 def process_markup(markup):
     ret = re.sub( r'`([^`]*)`', '<code>\\1</code>', markup );
+    return ret
+
+def generate_sub_id(parent_id, local_id):
+    if parent_id is None:
+        ret = local_id
+    else:
+        ret = parent_id + '.' + local_id
     return ret
