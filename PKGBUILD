@@ -2,13 +2,14 @@ developer=http://indiecomputing.com/
 url=${developer}
 maintainer=http://indiecomputing.com/
 pkgname=$(basename $(pwd))
-pkgver=0.4
+pkgver=0.5
 pkgrel=1
 pkgdesc="Host and work down task lists generated with taligen"
 arch=('any')
 license=("GPL")
 options=('!strip')
-depends=('python')
+depends=('python' 'ubos-rsync-server')
+install=install
 
 package() {
 # Manifest

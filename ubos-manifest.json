@@ -3,7 +3,7 @@
 
     "roles" : {
         "apache2" : {
-            "defaultcontext" : "/taliworkdown",
+            "defaultcontext" : "/taliwodo",
             "depends" : [
                 "mod_wsgi2"
             ],
@@ -17,9 +17,11 @@
                 },
                 {
                     "type"         : "directory",
-                    "name"         : "${appconfig.datadir}/tasklists",
+                    "name"         : "${appconfig.datadir}/rsyncsubdir",
                     "retentionpolicy" : "keep",
-                    "retentionbucket" : "tasklists"
+                    "retentionbucket" : "tasklists",
+                    "uname" : "${package.name}",
+                    "gname" : "${apache2.gname}"
                 },
                 {
                     "type"         : "file",
@@ -32,9 +34,21 @@
                     "name"         : "${appconfig.apache2.appconfigfragmentfile}",
                     "template"     : "tmpl/htaccess.tmpl",
                     "templatelang" : "varsubst"
+                },
+                {
+                    "type"   : "perlscript",
+                    "source" : "/usr/share/ubos-rsync-server/bin/provision-appconfig"
                 }
             ]
         }
+    },
+    "customizationpoints" : {
+        "publicsshkey" : {
+            "name" : "Public SSH key for upload",
+            "type" : "text",
+            "required" : true
+        }
     }
 }
+
 
