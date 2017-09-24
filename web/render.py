@@ -13,8 +13,8 @@ import config
 def doIt( tlId, environ, start_response ) :
   response_headers = [('Content-type','text/html; charset=utf-8')]
   start_response( '200 OK', response_headers)
-  # msg = 'This is the render page: tlId=' + tlId + ' dir is '+ config.JSONDIR
-  msg = generate_html_from_json(config.JSONDIR+"/"+tlId+".json").encode('utf-8')
+  # msg = 'This is the render page: tlId=' + tlId + ' dir is '+ config.TALIDIR
+  msg = generate_html_from_json(config.WODODIR+"/"+tlId+".json").encode('utf-8')
   return [msg]
 
 def generate_html_from_json(filename):
@@ -54,11 +54,13 @@ def generate_html_form(filename, d):
     print(d["name"])
     html_form += '<h1>'+d["name"]+'</h1>\n'
     html_form += '<h3>Generated: '+d["generated"]+'</h3>\n'
+    html_form += '<h3>Workdown Created: '+d["workdown_created"]+'</h3>\n'
     plist = generate_parameter_list(d["parameters"])
 #    html_form += '<h3>parameters: '+ plist +'</h3>\n'
     html_form += '<input type="hidden" name="json_filename" value="' + filename + '">\n'
     html_form += '<input type="hidden" name="tl_filename" value="' + d.get("name", "") + '">\n'
     html_form += '<input type="hidden" name="generated" value="' + d["generated"] + '">\n'
+    html_form += '<input type="hidden" name="workdown_created" value="' + d["workdown_created"] + '">\n'
     html_form += '<input type="hidden" name="parameters" value="' + html_escape(plist) + '">\n'
     html_form += '<br>\n'
     html_form += generate_html_table(d["steps"])

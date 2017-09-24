@@ -24,6 +24,14 @@
                     "gname" : "${apache2.gname}"
                 },
                 {
+                    "type"         : "directory",
+                    "name"         : "${appconfig.datadir}/wodos",
+                    "retentionpolicy" : "keep",
+                    "retentionbucket" : "workdowns",
+                    "uname" : "${apache2.uname}",
+                    "gname" : "${apache2.gname}"
+                },
+                {
                     "type"         : "file",
                     "name"         : "${appconfig.datadir}/config.py",
                     "template"     : "tmpl/config.py.tmpl",
