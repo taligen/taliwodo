@@ -14,18 +14,16 @@ def doIt( tlId, environ, start_response ) :
   response_headers = [('Content-type','text/html; charset=utf-8')]
   start_response( '200 OK', response_headers)
   # msg = 'This is the render page: tlId=' + tlId + ' dir is '+ config.TALIDIR
-  msg = generate_html_from_json(config.WODODIR+"/"+tlId+".json").encode('utf-8')
+  msg = generate_html_from_json(tlId, config.WODODIR+"/"+tlId+".json").encode('utf-8')
   return [msg]
 
-def generate_html_from_json(filename):
-    print("generating html from " + filename)
+def generate_html_from_json(tlId, filename):
+    print("Rendering as html from " + filename)
 
-#    gen_html = 'This is the page genereated from ' + filename
     with open(filename) as json_data:
         d = json.load(json_data)
     gen_html = generate_html_head()
-    gen_html += generate_html_body(filename, d)
-#    gen_html += '<body><p>This is the page generated from ' + filename + '</p>'
+    gen_html += generate_html_body(tlId, filename, d)
     return gen_html
 
 def generate_html_head():
@@ -39,24 +37,21 @@ def generate_html_head():
         <link rel="stylesheet" href="'+config.CONTEXT+'/css/default.css">\n\
     </head>'
     
-#        <meta charset="UTF-8">\n\
 
-
-def generate_html_body(filename, d):
+def generate_html_body(tlId, filename, d):
     html_body = '<body>\n'
-    html_body += generate_html_form(filename, d)
-#    html_body += '<p>In generate_html_body</p>'
+    html_body += generate_html_form(tlId, filename, d)
     html_body += '</body>\n'
     return html_body
 
-def generate_html_form(filename, d):
-    html_form = '<form action="http://localhost:9000/taligen" method="post">\n'
-    print(d["name"])
-    html_form += '<h1>'+d["name"]+'</h1>\n'
+def generate_html_form(tlId, filename, d):
+    html_form = '<form action="'+config.CONTEXT+'/render/'+tlId+'" method="post">\n'
+    html_form += '<h1>'+tlId+'</h1>\n'
+    html_form += '<h3>TL name: '+d["name"]+'</h3>\n'
     html_form += '<h3>Generated: '+d["generated"]+'</h3>\n'
     html_form += '<h3>Workdown Created: '+d["workdown_created"]+'</h3>\n'
     plist = generate_parameter_list(d["parameters"])
-#    html_form += '<h3>parameters: '+ plist +'</h3>\n'
+    html_form += '<h3>Parameters: '+ plist +'</h3>\n'
     html_form += '<input type="hidden" name="json_filename" value="' + filename + '">\n'
     html_form += '<input type="hidden" name="tl_filename" value="' + d.get("name", "") + '">\n'
     html_form += '<input type="hidden" name="generated" value="' + d["generated"] + '">\n'
@@ -108,11 +103,20 @@ def generate_html_table_row(parent_id, step, part):
     step_part_id = generate_sub_id(parent_id, step["id"]) + '.' + part
     html_table_row += '<td>' + step_part_id + '</td>\n'    #id
     html_table_row += '<td>' + process_markup( step[part]['description'] ) + '</td>\n'    #description
-    html_table_row += '<td><input type="radio" name="result'+ step_part_id + '" value="passed"></td>\n'
-    html_table_row += '<td><input type="radio" name="result'+ step_part_id + '" value="failed"></td>\n'
-    html_table_row += '<td><input type="radio" name="result'+ step_part_id + '" value="not done"></td>\n'
+    result = step[part].get('result',"")
+    html_table_row += '<td>'+generate_html_radio_button(step_part_id, "passed", result)+'</td>\n'
+    html_table_row += '<td>'+generate_html_radio_button(step_part_id, "failed", result)+'</td>\n'
+    html_table_row += '<td>'+generate_html_radio_button(step_part_id, "not done", result)+'</td>\n'
     html_table_row += '</tr>\n'
     return html_table_row
+    
+def generate_html_radio_button(step_part_id, value, result):
+    html_radio_button = '<input type="radio" name="result'+ step_part_id + '" value="'+value+'" '
+    if value == result:
+        html_radio_button += 'checked="checked"'
+    html_radio_button += '>'
+    # print ("html_radio_button: " + html_radio_button + ", result:" + result)
+    return html_radio_button
 
 def generate_parameter_list(parameters):
     plist = ""
@@ -121,11 +125,6 @@ def generate_parameter_list(parameters):
     if plist != "":
         plist = plist[:-2]
     return plist
-
-def parse_arguments():
-    argparser = argparse.ArgumentParser(description="taligen: generate html file from json file")
-    argparser.add_argument("json_file", type=str, help=".json (generated json task list) file to generate html from")
-    return argparser.parse_args()
 
 def html_escape(text):
     html_escape_table = {

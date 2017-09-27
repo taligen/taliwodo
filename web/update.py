@@ -3,56 +3,77 @@
 import argparse
 import json
 import os
+from cgi import parse_qs, escape
 import datetime
+import config
 
 
 def doIt( tlId, environ, start_response ) :
   response_headers = [('Content-type','text/html')]
   start_response( '200 OK', response_headers)
 
-  return '<p>This is the update page, tlId=' + tlId + '</p>'
+  # msg = '<p>This is the update page, tlId=' + tlId + '</p>'
+  # msg += '<p>environ: ' + str(environ) + '</p>'
+  # msg += '<p>start_response: ' + str(start_response) + '</p>'
+  
+  body= ''  # b'' for consistency on Python 3.0
+  try:
+      length= int(environ.get('CONTENT_LENGTH', '0'))
+  except ValueError:
+      length= 0
+  if length!=0:
+      body= environ['wsgi.input'].read(length)
+  postlist = parse_qs(body)
+  
+  json_file = config.WODODIR+"/"+tlId+".json"
+  
+  print("Updating workdown "+tlId+" with "+str(postlist)+" filename is "+json_file)
+  
+  tasklist = "{}"
+  with open(json_file) as json_data:
+      tasklist = json.load(json_data)
+      
+  tasklist = update_tasklist(tasklist, postlist)
+  
+  with open(json_file, "w") as jofile:
+      json.dump(tasklist, jofile, indent=4)
+      
+  # msg += '<p>body: ' + str(postlist) + '</p>'
+  # print ('postlist: ' + str(postlist))
 
-def parse_arguments():
-    argparser = argparse.ArgumentParser(description="taligen: update json file from html POST")
-    argparser.add_argument("json_file", type=str, help=".json (generated json task list) file to be updated")
-    argparser.add_argument("post_file", type=str, help=".json file of the POST contents to update the json file with")
-    return argparser.parse_args()
+  start_response('303 See Other', [('Location',config.CONTEXT+'/render/'+tlId)])
+
+  return ['1']
+
 
 def update_tasklist(tasklist, postlist):
     tasklist["updated"] = str(datetime.datetime.now())
 
     tasklist["steps"] = update_steps("", tasklist["steps"], postlist)
+    
+    # print(str(tasklist))
 
     return tasklist
 
 def update_steps(parent_id, steps, postlist):
-    print("  parent: "+ parent_id)
+    # print("  parent: "+ parent_id)
     for step in steps:
-        print("    step: "+ step["id"])
+        # print("    step: "+ step["id"])
         for part in step:
-            if "result"+parent_id+"."+step["id"]+"."+part in postlist:
-               print("      result: "+ "result"+parent_id+"."+step["id"]+"."+part)
-               step[part]["result"]= postlist["result"+parent_id+"."+step["id"]+"."+part]
+            if parent_id == "":
+                resultid = "result"+step["id"]+"."+part
+            else:
+                resultid = "result"+parent_id+"."+step["id"]+"."+part
+            # print("    looking for: "+ resultid)
+            if resultid in postlist:
+               # print("      result: "+ postlist[resultid][0])
+               step[part]["result"]= postlist[resultid][0]
         if "call" in step:
-            print("      call: "+ parent_id+"."+step["id"])
-            step["steps"] = update_steps(parent_id+"."+step["id"], step["steps"], postlist)
+            # print("      call: "+ parent_id+"."+step["id"])
+            if parent_id == "":
+                step["steps"] = update_steps(step["id"], step["steps"], postlist)
+            else:
+                step["steps"] = update_steps(parent_id+"."+step["id"], step["steps"], postlist)
     return steps
 
-
-def xxxxmain():
-    args = parse_arguments()
-
-    with open(args.json_file, "r") as jfile, open(args.post_file, "r") as pfile:
-        tasklist = json.load(jfile)
-        postlist = json.load(pfile)
-
-    # resultlist = (x for x in postlist if x.startswith("result."))
-
-    # for x in resultlist:
-    #     print x + ": " + postlist[x]
-
-    tasklist = update_tasklist(tasklist, postlist)
-
-    with open(args.json_file+".json", "w") as jofile:
-        json.dump(tasklist, jofile, indent=4)
 
