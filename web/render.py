@@ -111,11 +111,14 @@ def generate_html_table_row(parent_id, step, part):
     return html_table_row
     
 def generate_html_radio_button(step_part_id, value, result):
-    html_radio_button = '<input type="radio" name="result'+ step_part_id + '" value="'+value+'" '
+    # html_radio_button = '<input type="radio" onChange="document.getElementById(\"result'+step_part_id+'_timestamp\").value = "My value";this.form.submit();" name="result'+ step_part_id + '" value="'+value+'" '
+    # html_radio_button = '<input type="radio" onChange="document.getElementById(result'+step_part_id+'_timestamp).value = b; this.form.submit();" name="result'+ step_part_id + '" value="'+value+'" '
+    html_radio_button = '<input type="radio" onChange="this.form.submit();" name="result'+ step_part_id + '" value="'+value+'" '
     if value == result:
         html_radio_button += 'checked="checked"'
     html_radio_button += '>'
     # print ("html_radio_button: " + html_radio_button + ", result:" + result)
+    html_radio_button += '<input type="hidden" name="result'+step_part_id+'_timestamp">'
     return html_radio_button
 
 def generate_parameter_list(parameters):
