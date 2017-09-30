@@ -68,6 +68,8 @@ def update_steps(parent_id, steps, postlist):
             if resultid in postlist:
                # print("      result: "+ postlist[resultid][0])
                step[part]["result"]= postlist[resultid][0]
+            if resultid == postlist["button_changed"][0]:
+               step[part]["result_time"]= datetime.datetime.now().strftime('%Y/%m/%d %H-%M-%S')
         if "call" in step:
             # print("      call: "+ parent_id+"."+step["id"])
             if parent_id == "":
