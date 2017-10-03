@@ -41,9 +41,14 @@ def generate_html_head(tlId):
 
 def generate_html_body(tlId, filename, d):
     html_body = '<body>\n'
+    html_body += generate_menubar()
     html_body += generate_html_form(tlId, filename, d)
     html_body += '</body>\n'
     return html_body
+    
+def generate_menubar():
+	html_menubar = '<a href="'+config.CONTEXT+'/">Taliwodo</a>\n'
+	return html_menubar
 
 def generate_html_form(tlId, filename, d):
     html_form = '<form id="tasklist_form" action="'+config.CONTEXT+'/render/'+tlId+'" method="post">\n'
