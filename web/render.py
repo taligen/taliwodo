@@ -57,7 +57,6 @@ def generate_html_form(tlId, filename, d):
     html_form += '<tr><td>TL name</td><td>'+d["name"]+'</td></tr>\n'
     html_form += '<tr><td>Generated</td><td>'+d["generated"]+'</td></tr>\n'
     html_form += '<tr><td>Workdown Created</td><td>'+d["workdown_created"]+'</td></tr>\n'
-    # workdown_time = datetime.strptime(d["workdown_created"], '%Y/%m/%d %H-%M-%S')
     plist = generate_parameter_list(d["parameters"])
     html_form += '<tr><td>Parameters</td><td>'+ plist +'</td></tr>\n'
     html_form += '</table>'

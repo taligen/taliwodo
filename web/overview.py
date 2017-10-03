@@ -67,7 +67,7 @@ def doIt( environ, start_response ) :
                         wodobasefname = os.path.splitext(wodofilenames[wodo_i])[0]
                 wodonames.sort(reverse=True)
                 for wodoname in wodonames:
-                    page_content += '<li><a href="'+config.CONTEXT+'/render'+talireldir+'/'+wodoname+'">'+wodoname+'</a></li>'
+                    page_content += '<li><a href="'+config.CONTEXT+'/render'+talireldir+'/'+wodoname+'">'+wodoname+'</a> <button type="submit" formaction="'+config.CONTEXT+'/delete'+talireldir+'/'+wodoname+'">delete</button></li>'
                 page_content += "</ol>"
                 tali_i += 1
                 talibasefilename = ""
@@ -86,7 +86,7 @@ def doIt( environ, start_response ) :
                         wodobasefname = os.path.splitext(wodofilenames[wodo_i])[0]
                 wodonames.sort(reverse=True)
                 for wodoname in wodonames:
-                    page_content += '<li><a href="'+config.CONTEXT+'/render'+talireldir+'/'+wodoname+'">'+wodoname+'</a></li>'
+                    page_content += '<li><a href="'+config.CONTEXT+'/render'+talireldir+'/'+wodoname+'">'+wodoname+'</a>  <button type="submit" formaction="'+config.CONTEXT+'/delete'+talireldir+'/'+wodoname+'">delete</button></li>'
                 page_content += "</ol>"
         page_content += "</ol>"
         page_content += "</form>"

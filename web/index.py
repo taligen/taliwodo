@@ -8,6 +8,7 @@ import overview
 import create
 import render
 import update
+import delete
 
 # All invocations, other than for static files, end up here
 
@@ -20,6 +21,10 @@ def application( environ, start_response ) :
   elif environ['PATH_INFO'].startswith( '/create/' ) and environ['REQUEST_METHOD'] == 'POST':
     tlId = environ['PATH_INFO'][len('/create/'):]
     content = create.doIt( tlId, environ, start_response )
+    
+  elif environ['PATH_INFO'].startswith( '/delete/' ) and environ['REQUEST_METHOD'] == 'POST':
+    tlId = environ['PATH_INFO'][len('/delete/'):]
+    content = delete.doIt( tlId, environ, start_response )
 
   elif environ['PATH_INFO'].startswith( '/render/' ) :
     tlId = environ['PATH_INFO'][len('/render/'):]
