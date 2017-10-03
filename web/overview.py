@@ -16,7 +16,7 @@ def doIt( environ, start_response ) :
     </head>'
     
     page_content += '<body>'
-    page_content += "<h1>Task list list</h1>\n"
+    page_content += "<h1>Tasklists and Workdowns</h1>\n"
     print ("Overview:: TALIDIR: "+config.TALIDIR+", WODODIR: "+config.WODODIR)
     for (talidirpath, talidirnames, talifilenames) in os.walk(config.TALIDIR):
         talifilenames.sort()
@@ -45,6 +45,7 @@ def doIt( environ, start_response ) :
         if len(wodofilenames) > 0:
             wodobasefname = os.path.splitext(wodofilenames[wodo_i])[0]
         # print("   talibasefiname: "+talibasefname+", wodobasefname: "+wodobasefname)
+        wodonames = []
         while tali_i < len(talifilenames) or wodo_i < len(wodofilenames):
             if talibasefname < wodobasefname[:-16] or wodobasefname == "":
                 # print("      talibasefname ("+talibasefname+") < wodobasefname "+ wodobasefname[:-16])
@@ -57,12 +58,16 @@ def doIt( environ, start_response ) :
                 # print("      talibasefname ("+talibasefname+") == wodobasefname ("+ wodobasefname[:-16]+")")
                 page_content += '<li>'+talibasefname+' <button type="submit" formaction="'+config.CONTEXT+'/create'+talireldir+'/'+talibasefname+'">new workdown</button></li>'
                 page_content += "<ol>"
+                wodonames = []
                 while wodobasefname != "" and talibasefname == wodobasefname[:-16]:
-                    page_content += '<li><a href="'+config.CONTEXT+'/render'+talireldir+'/'+wodobasefname+'">'+wodobasefname+'</a></li>'
+                    wodonames.append(wodobasefname)
                     wodo_i += 1
                     wodobasefname = ""
                     if wodo_i < len(wodofilenames):
                         wodobasefname = os.path.splitext(wodofilenames[wodo_i])[0]
+                wodonames.sort(reverse=True)
+                for wodoname in wodonames:
+                    page_content += '<li><a href="'+config.CONTEXT+'/render'+talireldir+'/'+wodoname+'">'+wodoname+'</a></li>'
                 page_content += "</ol>"
                 tali_i += 1
                 talibasefilename = ""
@@ -74,14 +79,19 @@ def doIt( environ, start_response ) :
                 page_content += '<li>'+wodobasefname[:-16]+'</li>'
                 page_content += "<ol>"
                 while wodobasefname != "" and placeholdertalibasefname == wodobasefname[:-16]:
-                    page_content += '<li><a href="'+config.CONTEXT+'/render'+talireldir+'/'+wodobasefname+'">'+wodobasefname+'</a></li>'
+                    wodonames.append(wodobasefname)
                     wodo_i += 1
                     wodobasefname = ""
                     if wodo_i < len(wodofilenames):
                         wodobasefname = os.path.splitext(wodofilenames[wodo_i])[0]
+                wodonames.sort(reverse=True)
+                for wodoname in wodonames:
+                    page_content += '<li><a href="'+config.CONTEXT+'/render'+talireldir+'/'+wodoname+'">'+wodoname+'</a></li>'
                 page_content += "</ol>"
         page_content += "</ol>"
         page_content += "</form>"
     page_content += '</body>'
 
     return page_content
+    
+
