@@ -78,16 +78,19 @@ table.context {
    vertical-align: middle;
 }
 
-.steps tr td:nth-last-child(-n+3) {
+.steps tr td:nth-last-child(-n+4) {
    text-align: center;
    vertical-align: middle;
-   width: 35px;
 }
 
-/* This works if I don't set the background color through tbody and tr */
-.pass { background-color: #ccffcc; }
-.fail { background-color: #ffcccc; }
-.not_done { background-color: #ffffcc; }
+.steps tr td:nth-last-child(-n+4):not(:nth-last-child(-n+1)) { width: 35px; }
 
-span.timespan { font-size: 75%; }
+.steps tr td:nth-last-child(-n+1) { width: 65px; font-size: 75%; }
+
+
+/* This works if I don't set the background color through tbody and tr */
+.pass { background-color: #ccffcc;  }
+.fail { background-color: #ffcccc; width: 35px; }
+.not_done { background-color: #ffffcc; width: 35px; }
+
 

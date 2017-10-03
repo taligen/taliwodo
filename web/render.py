@@ -70,8 +70,6 @@ def generate_html_form(tlId, filename, d):
     html_form += '<input type="hidden" name="button_changed" id="button_changed">\n'
     html_form += '<br>\n'
     html_form += generate_html_table(d["steps"])
-    html_form += '<br>\n'
-    html_form += '<input type="submit" value="Submit">\n'
     html_form += '</form>\n'
     return html_form
 
@@ -89,8 +87,9 @@ def generate_html_table_header():
     <col class="pass" />\n\
     <col class="fail" />\n\
     <col class="not_done" />\n\
+    <col class="age" />\n\
   </colgroup>\n\
-<theader><tr><th>ID</th><th>Description</th><th>Pass</th><th>Fail</th><th>Not Done</th></tr></theader>\n'
+<theader><tr><th>ID</th><th>Description</th><th>Pass</th><th>Fail</th><th>Not Done</th><th>Age</th></tr></theader>\n'
 
 def generate_html_table_bodies(parent_id, steps):
     html_table_bodies = ""
@@ -113,14 +112,16 @@ def generate_html_table_row(parent_id, step, part):
     html_table_row = '<tr class=' + part + '>\n'
     step_part_id = generate_sub_id(parent_id, step["id"]) + '.' + part
     html_table_row += '<td>' + step_part_id
-    if "result_time" in step[part]:
-         html_table_row += '&emsp;&emsp;<span class="timespan">(' + str(datetime.now() - datetime.strptime(step[part]["result_time"], '%Y/%m/%d %H-%M-%S')).split(".")[0] + ')</span>'
     html_table_row += '</td>\n'    #id
     html_table_row += '<td>' + process_markup( step[part]['description'] ) + '</td>\n'    #description
     result = step[part].get('result',"")
     html_table_row += '<td>'+generate_html_radio_button(step_part_id, "passed", result)+'</td>\n'
     html_table_row += '<td>'+generate_html_radio_button(step_part_id, "failed", result)+'</td>\n'
     html_table_row += '<td>'+generate_html_radio_button(step_part_id, "not done", result)+'</td>\n'
+    html_table_row += '<td>'
+    if "result_time" in step[part]:
+         html_table_row += str(datetime.now() - datetime.strptime(step[part]["result_time"], '%Y/%m/%d %H-%M-%S')).split(".")[0]+ " ago"
+    html_table_row += '</td>\n'
     html_table_row += '</tr>\n'
     return html_table_row
     
@@ -140,7 +141,7 @@ def generate_parameter_list(parameters):
     if plist != "":
         plist = plist[:-2]
     else:
-        plist = "-"
+        plist = "&mdash;"
     return plist
 
 def html_escape(text):
