@@ -5,6 +5,7 @@
 #
 
 import argparse
+from datetime import datetime
 import json
 import os
 import re
@@ -22,16 +23,16 @@ def generate_html_from_json(tlId, filename):
 
     with open(filename) as json_data:
         d = json.load(json_data)
-    gen_html = generate_html_head()
+    gen_html = generate_html_head(tlId)
     gen_html += generate_html_body(tlId, filename, d)
     return gen_html
 
-def generate_html_head():
+def generate_html_head(tlId):
     return '<!DOCTYPE html>\n\
 \n\
 <html lang="en-US">\n\
     <head>\n\
-        <title>Taligen script</title>\n\
+        <title>'+tlId+'</title>\n\
         <meta name="viewport" content="width=device-width, initial-scale=1.0">\n\
 \n\
         <link rel="stylesheet" href="'+config.CONTEXT+'/css/default.css">\n\
@@ -40,32 +41,44 @@ def generate_html_head():
 
 def generate_html_body(tlId, filename, d):
     html_body = '<body>\n'
+    html_body += generate_menubar()
     html_body += generate_html_form(tlId, filename, d)
     html_body += '</body>\n'
     return html_body
+    
+def generate_menubar():
+	html_menubar = '<a href="'+config.CONTEXT+'/">Taliwodo</a>\n'
+	return html_menubar
 
 def generate_html_form(tlId, filename, d):
-    html_form = '<form action="'+config.CONTEXT+'/render/'+tlId+'" method="post">\n'
+    html_form = '<form id="tasklist_form" action="'+config.CONTEXT+'/render/'+tlId+'" method="post">\n'
+    html_form += '<script> function sendUpdate(button_name) {\n'
+    html_form += 'document.getElementById("button_changed").value = button_name;\n'
+    html_form += 'document.getElementById("tasklist_form").submit();\n'
+    html_form += '}\n'
+    html_form += '</script>\n'
     html_form += '<h1>'+tlId+'</h1>\n'
-    html_form += '<h3>TL name: '+d["name"]+'</h3>\n'
-    html_form += '<h3>Generated: '+d["generated"]+'</h3>\n'
-    html_form += '<h3>Workdown Created: '+d["workdown_created"]+'</h3>\n'
+    html_form += '<table class="context">'
+    html_form += '<tr><td>TL name</td><td>'+d["name"]+'</td></tr>\n'
+    html_form += '<tr><td>Generated</td><td>'+d["generated"]+'</td></tr>\n'
+    html_form += '<tr><td>Workdown Created</td><td>'+d["workdown_created"]+'</td></tr>\n'
     plist = generate_parameter_list(d["parameters"])
-    html_form += '<h3>Parameters: '+ plist +'</h3>\n'
+    html_form += '<tr><td>Parameters</td><td>'+ plist +'</td></tr>\n'
+    html_form += '</table>'
+    html_form += '<br>\n<br>\n'
     html_form += '<input type="hidden" name="json_filename" value="' + filename + '">\n'
     html_form += '<input type="hidden" name="tl_filename" value="' + d.get("name", "") + '">\n'
     html_form += '<input type="hidden" name="generated" value="' + d["generated"] + '">\n'
     html_form += '<input type="hidden" name="workdown_created" value="' + d["workdown_created"] + '">\n'
     html_form += '<input type="hidden" name="parameters" value="' + html_escape(plist) + '">\n'
+    html_form += '<input type="hidden" name="button_changed" id="button_changed">\n'
     html_form += '<br>\n'
     html_form += generate_html_table(d["steps"])
-    html_form += '<br>\n'
-    html_form += '<input type="submit" value="Submit">\n'
     html_form += '</form>\n'
     return html_form
 
 def generate_html_table(steps):
-    html_table = '<table>\n'
+    html_table = '<table class="steps">\n'
     html_table += generate_html_table_header()
     html_table += generate_html_table_bodies(None, steps)
     html_table += '</table>\n'
@@ -78,8 +91,9 @@ def generate_html_table_header():
     <col class="pass" />\n\
     <col class="fail" />\n\
     <col class="not_done" />\n\
+    <col class="age" />\n\
   </colgroup>\n\
-<theader><tr><td>ID</td><td>Description</td><td>Pass</td><td>Fail</td><td>Not Done</td></tr></theader>\n'
+<theader><tr><th>ID</th><th>Description</th><th>Pass</th><th>Fail</th><th>Not Done</th><th>Age</th></tr></theader>\n'
 
 def generate_html_table_bodies(parent_id, steps):
     html_table_bodies = ""
@@ -101,21 +115,27 @@ def generate_html_table_body(parent_id, step):
 def generate_html_table_row(parent_id, step, part):
     html_table_row = '<tr class=' + part + '>\n'
     step_part_id = generate_sub_id(parent_id, step["id"]) + '.' + part
-    html_table_row += '<td>' + step_part_id + '</td>\n'    #id
+    html_table_row += '<td>' + step_part_id
+    html_table_row += '</td>\n'    #id
     html_table_row += '<td>' + process_markup( step[part]['description'] ) + '</td>\n'    #description
     result = step[part].get('result',"")
     html_table_row += '<td>'+generate_html_radio_button(step_part_id, "passed", result)+'</td>\n'
     html_table_row += '<td>'+generate_html_radio_button(step_part_id, "failed", result)+'</td>\n'
     html_table_row += '<td>'+generate_html_radio_button(step_part_id, "not done", result)+'</td>\n'
+    html_table_row += '<td>'
+    if "result_time" in step[part]:
+         html_table_row += str(datetime.now() - datetime.strptime(step[part]["result_time"], '%Y/%m/%d %H-%M-%S')).split(".")[0]+ " ago"
+    html_table_row += '</td>\n'
     html_table_row += '</tr>\n'
     return html_table_row
     
 def generate_html_radio_button(step_part_id, value, result):
-    html_radio_button = '<input type="radio" name="result'+ step_part_id + '" value="'+value+'" '
+    html_radio_button = '<input type="radio" onChange="sendUpdate(this.name);" name="result'+ step_part_id + '" value="'+value+'" '
     if value == result:
         html_radio_button += 'checked="checked"'
     html_radio_button += '>'
     # print ("html_radio_button: " + html_radio_button + ", result:" + result)
+    html_radio_button += '<input type="hidden" name="result'+step_part_id+'_timestamp">'
     return html_radio_button
 
 def generate_parameter_list(parameters):
@@ -124,6 +144,8 @@ def generate_parameter_list(parameters):
         plist += '"' + key + '": "' + value + '", '
     if plist != "":
         plist = plist[:-2]
+    else:
+        plist = "&mdash;"
     return plist
 
 def html_escape(text):
