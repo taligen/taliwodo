@@ -15,7 +15,9 @@ import delete
 def application( environ, start_response ) :
   cgitb.enable()
 
-  if environ['PATH_INFO'] == '/' :
+  # print ("config.CONTEXT: " + config.CONTEXT + ", PATH_INFO: " + environ['PATH_INFO'])
+  
+  if environ['PATH_INFO'] == '/' or environ['PATH_INFO'] == '':
     content = overview.doIt( environ, start_response )
     
   elif environ['PATH_INFO'].startswith( '/create/' ) and environ['REQUEST_METHOD'] == 'POST':
