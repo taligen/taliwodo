@@ -10,13 +10,24 @@ import json
 import os
 import re
 import config
+import error
 
 def doIt( tlId, environ, start_response ) :
-  response_headers = [('Content-type','text/html; charset=utf-8')]
-  start_response( '200 OK', response_headers)
-  # msg = 'This is the render page: tlId=' + tlId + ' dir is '+ config.TALIDIR
-  msg = generate_html_from_json(tlId, config.WODODIR+"/"+tlId+".json").encode('utf-8')
-  return [msg]
+    response_headers = [('Content-type','text/html; charset=utf-8')]
+    filename = config.WODODIR+"/"+tlId+".json"
+    
+    if not os.path.isfile(filename):
+        start_response( '404 Not Found', response_headers)
+        # content = error.doIt( '404 Not Found', environ, start_response )
+        # content += "<p>File not found: " + environ['PATH_INFO'] + "</p>\n"
+        content = "<p>File not found: " + environ['PATH_INFO'] + "</p>\n"
+        return content
+        
+    start_response( '200 OK', response_headers)
+  
+    # msg = 'This is the render page: tlId=' + tlId + ' dir is '+ config.TALIDIR
+    msg = generate_html_from_json(tlId, filename).encode('utf-8')
+    return [msg]
 
 def generate_html_from_json(tlId, filename):
     print("Rendering as html from " + filename)
