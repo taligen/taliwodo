@@ -32,8 +32,11 @@ def doIt( tlId, environ, start_response ) :
   tasklist = "{}"
   with open(json_file) as json_data:
       tasklist = json.load(json_data)
-      
+
+  tasklist["workdown_last_updated"] = datetime.datetime.now().strftime('%Y/%m/%d %H-%M-%S')
+
   tasklist = update_tasklist(tasklist, postlist)
+  tasklist = count_results(tasklist)
   
   with open(json_file, "w") as jofile:
       json.dump(tasklist, jofile, indent=4)
@@ -44,6 +47,39 @@ def doIt( tlId, environ, start_response ) :
   start_response('303 See Other', [('Location',config.CONTEXT+'/render/'+tlId)])
 
   return ['1']
+  
+  
+def count_results(tasklist):
+    counts = {"step_count":0, "pass_count":0, "fail_count":0, "not_done_count":0}
+    
+    counts = count_step_results(tasklist["steps"], counts)
+    
+    for count in counts:
+        tasklist[count] = counts[count]
+    
+    return tasklist
+    
+    
+def count_step_results(steps, counts):
+    for step in steps:
+        if "a" in step:
+            counts["step_count"] += 1
+            if "result" in step["a"]:
+                counts = add_result(step["a"]["result"], counts)
+        if "o" in step:
+            counts["step_count"] += 1
+            if "result" in step["o"]:
+                counts = add_result(step["o"]["result"], counts)
+        if "call" in step:
+            counts = count_step_results(step["steps"], counts)
+    return counts
+    
+    
+def add_result(result, counts):
+    results_to_countnames = {'passed': "pass_count", 'failed': "fail_count", "not done": "not_done_count"}
+    countname = results_to_countnames.get(result, 'unknown')
+    counts[countname] = 1 + counts.get(countname, 0)
+    return counts
 
 
 def update_tasklist(tasklist, postlist):

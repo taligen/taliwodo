@@ -89,8 +89,8 @@ table.context {
 
 
 /* This works if I don't set the background color through tbody and tr */
-.pass { background-color: #ccffcc;  }
-.fail { background-color: #ffcccc; width: 35px; }
-.not_done { background-color: #ffffcc; width: 35px; }
+.pass { background-color: #ccffcc; }
+.fail { background-color: #ffcccc; }
+.not_done { background-color: #ffffcc; }
 
 

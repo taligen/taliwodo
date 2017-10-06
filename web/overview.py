@@ -1,5 +1,8 @@
 import os
 import config
+import json
+import render
+from datetime import datetime
 
 def doIt( environ, start_response ) :
     response_headers = [('Content-type','text/html')]
@@ -58,16 +61,27 @@ def doIt( environ, start_response ) :
                 # print("      talibasefname ("+talibasefname+") == wodobasefname ("+ wodobasefname[:-16]+")")
                 page_content += '<li>'+talibasefname+' <button type="submit" formaction="'+config.CONTEXT+'/create'+talireldir+'/'+talibasefname+'">new workdown</button></li>'
                 page_content += "<ol>"
-                wodonames = []
-                while wodobasefname != "" and talibasefname == wodobasefname[:-16]:
-                    wodonames.append(wodobasefname)
-                    wodo_i += 1
-                    wodobasefname = ""
-                    if wodo_i < len(wodofilenames):
-                        wodobasefname = os.path.splitext(wodofilenames[wodo_i])[0]
-                wodonames.sort(reverse=True)
-                for wodoname in wodonames:
-                    page_content += '<li><a href="'+config.CONTEXT+'/render'+talireldir+'/'+wodoname+'">'+wodoname+'</a> <button type="submit" formaction="'+config.CONTEXT+'/delete'+talireldir+'/'+wodoname+'">delete</button></li>'
+  #              wodonames = []
+  #              while wodobasefname != "" and talibasefname == wodobasefname[:-16]:
+  #                  wodonames.append(wodobasefname)
+  #                  wodo_i += 1
+  #                  wodobasefname = ""
+  #                  if wodo_i < len(wodofilenames):
+  #                      wodobasefname = os.path.splitext(wodofilenames[wodo_i])[0]
+  #              wodonames.sort(reverse=True)
+  #              for wodoname in wodonames:
+  #                  page_content += '<li><a href="'+config.CONTEXT
+  #                  page_content += '/render'+talireldir+'/'+wodoname+'">'
+  #                  page_content += wodoname+'</a> <button type="submit" formaction="'
+  #                  page_content += config.CONTEXT+'/delete'+talireldir+'/'
+  #                  page_content += wodoname+'">delete</button>&emsp;'
+  #                  page_content += wodo_summary(talireldir+'/'+wodoname)+'</li>'
+    
+                (wodo_i, page_content) = wodo_list(talireldir, wodobasefname, talibasefname, wodofilenames, wodo_i, page_content)
+                wodobasefname = ""
+                if wodo_i < len(wodofilenames):
+                    wodobasefname = os.path.splitext(wodofilenames[wodo_i])[0]
+  
                 page_content += "</ol>"
                 tali_i += 1
                 talibasefilename = ""
@@ -78,7 +92,32 @@ def doIt( environ, start_response ) :
                 placeholdertalibasefname = wodobasefname[:-16]
                 page_content += '<li>'+wodobasefname[:-16]+'</li>'
                 page_content += "<ol>"
-                while wodobasefname != "" and placeholdertalibasefname == wodobasefname[:-16]:
+  #              while wodobasefname != "" and placeholdertalibasefname == wodobasefname[:-16]:
+  #                  wodonames.append(wodobasefname)
+  #                  wodo_i += 1
+  #                  wodobasefname = ""
+  #                  if wodo_i < len(wodofilenames):
+  #                      wodobasefname = os.path.splitext(wodofilenames[wodo_i])[0]
+  #              wodonames.sort(reverse=True)
+  #              for wodoname in wodonames:
+  #                  page_content += '<li><a href="'+config.CONTEXT+'/render'+talireldir+'/'+wodoname+'">'+wodoname+'</a>  <button type="submit" formaction="'+config.CONTEXT+'/delete'+talireldir+'/'+wodoname+'">delete</button></li>'
+
+                (wodo_i, page_content) = wodo_list(talireldir, wodobasefname, placeholdertalibasefname, wodofilenames, wodo_i, page_content)
+                wodobasefname = ""
+                if wodo_i < len(wodofilenames):
+                    wodobasefname = os.path.splitext(wodofilenames[wodo_i])[0]
+
+                page_content += "</ol>"
+        page_content += "</ol>"
+        page_content += "</form>"
+    page_content += '</body>'
+
+    return page_content
+    
+    
+def wodo_list(talireldir, wodobasefname, talibasefname, wodofilenames, wodo_i, page_content):
+                wodonames = []
+                while wodobasefname != "" and talibasefname == wodobasefname[:-16]:
                     wodonames.append(wodobasefname)
                     wodo_i += 1
                     wodobasefname = ""
@@ -86,12 +125,24 @@ def doIt( environ, start_response ) :
                         wodobasefname = os.path.splitext(wodofilenames[wodo_i])[0]
                 wodonames.sort(reverse=True)
                 for wodoname in wodonames:
-                    page_content += '<li><a href="'+config.CONTEXT+'/render'+talireldir+'/'+wodoname+'">'+wodoname+'</a>  <button type="submit" formaction="'+config.CONTEXT+'/delete'+talireldir+'/'+wodoname+'">delete</button></li>'
-                page_content += "</ol>"
-        page_content += "</ol>"
-        page_content += "</form>"
-    page_content += '</body>'
+                    page_content += '<li><a href="'+config.CONTEXT
+                    page_content += '/render'+talireldir+'/'+wodoname+'">'
+                    page_content += wodoname+'</a> <button type="submit" formaction="'
+                    page_content += config.CONTEXT+'/delete'+talireldir+'/'
+                    page_content += wodoname+'">delete</button>&emsp;'
+                    page_content += wodo_summary(talireldir+'/'+wodoname)+'</li>'
+                return (wodo_i, page_content)
 
-    return page_content
+    
+def wodo_summary(wodofilename):
+    with open(config.WODODIR+wodofilename+'.json') as json_data:
+        workdown_data = json.load(json_data)
+    summary = render.generate_result_graphic_div(workdown_data)
+    # summary += "&emsp;last updated " + str(workdown_data.get("workdown_last_updated", ""))
+    if "workdown_last_updated" in workdown_data:
+        summary += "&emsp;"
+        summary += str(datetime.now() - datetime.strptime(workdown_data.get("workdown_last_updated", ""), '%Y/%m/%d %H-%M-%S')).split(".")[0]+ " ago"
+    return summary
+    
     
 

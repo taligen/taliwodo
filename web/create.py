@@ -3,6 +3,7 @@ import config
 import datetime
 import json
 import overview
+import update
 
 
 def doIt( tlId, environ, start_response ) :
@@ -14,7 +15,9 @@ def doIt( tlId, environ, start_response ) :
     with open(config.TALIDIR+"/"+tlId+".json") as json_file:
         jason_data = json.load(json_file)
     jason_data["workdown_created"] = datetime.datetime.now().strftime('%Y/%m/%d %H-%M-%S')
-    
+    jason_data = update.count_results(jason_data)
+    # jason_data["workdown_last_updated"] = None
+        
     if not os.path.isdir( config.WODODIR+"/"+os.path.split(tlId)[0] ):
         os.makedirs(config.WODODIR+"/"+os.path.split(tlId)[0])
         
