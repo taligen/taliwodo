@@ -10,13 +10,24 @@ import json
 import os
 import re
 import config
+import error
 
 def doIt( tlId, environ, start_response ) :
-  response_headers = [('Content-type','text/html; charset=utf-8')]
-  start_response( '200 OK', response_headers)
-  # msg = 'This is the render page: tlId=' + tlId + ' dir is '+ config.TALIDIR
-  msg = generate_html_from_json(tlId, config.WODODIR+"/"+tlId+".json").encode('utf-8')
-  return [msg]
+    response_headers = [('Content-type','text/html; charset=utf-8')]
+    filename = config.WODODIR+"/"+tlId+".json"
+    
+    if not os.path.isfile(filename):
+        start_response( '404 Not Found', response_headers)
+        # content = error.doIt( '404 Not Found', environ, start_response )
+        # content += "<p>File not found: " + environ['PATH_INFO'] + "</p>\n"
+        content = "<p>File not found: " + environ['PATH_INFO'] + "</p>\n"
+        return content
+        
+    start_response( '200 OK', response_headers)
+  
+    # msg = 'This is the render page: tlId=' + tlId + ' dir is '+ config.TALIDIR
+    msg = generate_html_from_json(tlId, filename).encode('utf-8')
+    return [msg]
 
 def generate_html_from_json(tlId, filename):
     print("Rendering as html from " + filename)
@@ -47,8 +58,8 @@ def generate_html_body(tlId, filename, d):
     return html_body
     
 def generate_menubar():
-	html_menubar = '<a href="'+config.CONTEXT+'/">Taliwodo</a>\n'
-	return html_menubar
+    html_menubar = '<a href="'+config.CONTEXT+'/">Taliwodo</a>\n'
+    return html_menubar
 
 def generate_html_form(tlId, filename, d):
     html_form = '<form id="tasklist_form" action="'+config.CONTEXT+'/render/'+tlId+'" method="post">\n'
@@ -58,24 +69,68 @@ def generate_html_form(tlId, filename, d):
     html_form += '}\n'
     html_form += '</script>\n'
     html_form += '<h1>'+tlId+'</h1>\n'
+    # html_form += '<div style="width: 400px; height: 30px;"><div class="pass" style="width: 20%; height: 100%;"></div></div>'
     html_form += '<table class="context">'
-    html_form += '<tr><td>TL name</td><td>'+d["name"]+'</td></tr>\n'
-    html_form += '<tr><td>Generated</td><td>'+d["generated"]+'</td></tr>\n'
-    html_form += '<tr><td>Workdown Created</td><td>'+d["workdown_created"]+'</td></tr>\n'
-    plist = generate_parameter_list(d["parameters"])
+    html_form += '<tr><td>TL name</td><td>'+str(d.get("name", "&mdash;"))+'</td></tr>\n'
+    html_form += '<tr><td>Generated</td><td>'+d.get("generated", "&mdash;")+'</td></tr>\n'
+    html_form += '<tr><td>Workdown Created</td><td>'+d.get("workdown_created", "&mdash;")+'</td></tr>\n'
+    html_form += '<tr><td>Last Updated</td><td>'+d.get("workdown_last_updated", "&mdash;")+'</td></tr>\n'
+    plist = generate_parameter_list(d.get("parameters", {}))
     html_form += '<tr><td>Parameters</td><td>'+ plist +'</td></tr>\n'
+    html_form += '<tr><td>Steps Count</td><td>'+str(d.get("step_count", "&mdash;"))+'</td></tr>\n'
+    html_form += generate_result_count_row("Passed", "pass", "pass_count", d)
+    html_form += generate_result_count_row("Failed", "fail", "fail_count", d)
+    html_form += generate_result_count_row("Not Done", "not_done", "not_done_count", d)
+    # html_form += '<tr><td>Steps Passed Count</td><td class="pass">'+str(d.get("pass_count", "&mdash;"))+'</td></tr>\n'
+    # html_form += '<tr><td>% Steps Passed</td><td class="pass">'+str(100*d.get("pass_count", 0)/d.get("step_count", 1))+'%</td></tr>\n'
+    # html_form += '<tr><td>Steps Failed Count</td><td class="fail">'+str(d.get("fail_count", "&mdash;"))+'</td></tr>\n'
+    # html_form += '<tr><td>% Steps Failed</td><td class="fail">'+str(100*d.get("fail_count", 0)/d.get("step_count", 1))+'%</td></tr>\n'
+    # html_form += '<tr><td>Steps Not Done Count</td><td class="not_done">'+str(d.get("not_done_count", "&mdash;")+'</td></tr>\n'
+    # html_form += '<tr><td>% Steps Not Done</td><td class="not_done">'+str(100*d.get("not_done_count", 0)/d.get("step_count", 1))+'%</td></tr>\n'
+    html_form += generate_result_graphic_row(d)
     html_form += '</table>'
     html_form += '<br>\n<br>\n'
     html_form += '<input type="hidden" name="json_filename" value="' + filename + '">\n'
-    html_form += '<input type="hidden" name="tl_filename" value="' + d.get("name", "") + '">\n'
-    html_form += '<input type="hidden" name="generated" value="' + d["generated"] + '">\n'
-    html_form += '<input type="hidden" name="workdown_created" value="' + d["workdown_created"] + '">\n'
+    html_form += '<input type="hidden" name="tl_filename" value="' + d.get("name", "&mdash;") + '">\n'
+    html_form += '<input type="hidden" name="generated" value="' + d.get("generated", "&mdash;") + '">\n'
+    html_form += '<input type="hidden" name="workdown_created" value="' + d.get("workdown_created", "&mdash;") + '">\n'
     html_form += '<input type="hidden" name="parameters" value="' + html_escape(plist) + '">\n'
     html_form += '<input type="hidden" name="button_changed" id="button_changed">\n'
     html_form += '<br>\n'
-    html_form += generate_html_table(d["steps"])
+    html_form += generate_html_table(d.get("steps", []))
     html_form += '</form>\n'
     return html_form
+    
+def generate_result_count_row(result_name, class_name, count_name, workdown_data):
+    html_row = '<tr><td>Steps ' + result_name + '</td>'
+    html_row += '<td class="' + class_name + '">'
+    html_row += str(100*workdown_data.get(count_name, 0)/workdown_data.get("step_count", 1))+'%&emsp;&emsp;'
+    html_row += str(workdown_data.get(count_name, 0)) + " out of " + str(workdown_data.get("step_count", 0))
+    html_row += '</td></tr>\n'
+    return html_row
+    
+def generate_result_graphic_row(workdown_data):
+    html_row = '<tr><td>Results </td>'
+    html_row += '<td>'
+    html_row += generate_result_graphic_div(workdown_data)
+    html_row += '</td>'
+    html_row += '</tr>'
+    return html_row
+    
+def generate_result_graphic_div(workdown_data):
+    html_div = '<div style="width: 100px; height: 10px; border: solid black 1px;">'
+    html_div += generate_result_div("pass", "pass_count", workdown_data)
+    html_div += generate_result_div("fail", "fail_count", workdown_data)
+    html_div += generate_result_div("not_done", "not_done_count", workdown_data)
+    html_div += '</div>'
+    return html_div
+	
+    
+def generate_result_div(class_name, count_name, workdown_data):
+    html_div = '<div class="'+ class_name + '" style="width: '
+    html_div += str(100*workdown_data.get(count_name, 0)/workdown_data.get("step_count", 1))
+    html_div += '%; height: 100%; float: left;"></div>'
+    return html_div
 
 def generate_html_table(steps):
     html_table = '<table class="steps">\n'
@@ -96,12 +151,16 @@ def generate_html_table_header():
 <theader><tr><th>ID</th><th>Description</th><th>Pass</th><th>Fail</th><th>Not Done</th><th>Age</th></tr></theader>\n'
 
 def generate_html_table_bodies(parent_id, steps):
+    print("generate_html_table_bodies:: parent_id: "+str(parent_id)+", steps: "+str(steps))
     html_table_bodies = ""
     for step in steps:
         if "a" in step:
             html_table_bodies += generate_html_table_body(parent_id, step)
         elif "call" in step:
-            html_table_bodies += generate_html_table_bodies(generate_sub_id(parent_id,step["id"]), step["steps"])
+            html_table_bodies += generate_html_table_bodies(generate_sub_id(parent_id,step.get("id", "-")),step.get("steps", "[]"))
+    print("... len(steps): " + str(len(steps)))
+    if len(steps) == 0:
+        html_table_bodies = '<tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>'
     return html_table_bodies
 
 def generate_html_table_body(parent_id, step):
@@ -114,17 +173,18 @@ def generate_html_table_body(parent_id, step):
 
 def generate_html_table_row(parent_id, step, part):
     html_table_row = '<tr class=' + part + '>\n'
-    step_part_id = generate_sub_id(parent_id, step["id"]) + '.' + part
+    part_data = step.get(part, "{}")
+    step_part_id = generate_sub_id(parent_id, step.get("id", "-")) + '.' + part
     html_table_row += '<td>' + step_part_id
     html_table_row += '</td>\n'    #id
-    html_table_row += '<td>' + process_markup( step[part]['description'] ) + '</td>\n'    #description
+    html_table_row += '<td>' + process_markup( part_data.get('description', "&mdash;") ) + '</td>\n'    #description
     result = step[part].get('result',"")
     html_table_row += '<td>'+generate_html_radio_button(step_part_id, "passed", result)+'</td>\n'
     html_table_row += '<td>'+generate_html_radio_button(step_part_id, "failed", result)+'</td>\n'
     html_table_row += '<td>'+generate_html_radio_button(step_part_id, "not done", result)+'</td>\n'
     html_table_row += '<td>'
-    if "result_time" in step[part]:
-         html_table_row += str(datetime.now() - datetime.strptime(step[part]["result_time"], '%Y/%m/%d %H-%M-%S')).split(".")[0]+ " ago"
+    if "result_time" in part_data:
+        html_table_row += str(datetime.now() - datetime.strptime(part_data["result_time"], '%Y/%m/%d %H-%M-%S')).split(".")[0]+ " ago"
     html_table_row += '</td>\n'
     html_table_row += '</tr>\n'
     return html_table_row
