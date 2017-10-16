@@ -61,21 +61,6 @@ def doIt( environ, start_response ) :
                 # print("      talibasefname ("+talibasefname+") == wodobasefname ("+ wodobasefname[:-16]+")")
                 page_content += '<li>'+talibasefname+' <button type="submit" formaction="'+config.CONTEXT+'/create'+talireldir+'/'+talibasefname+'">new workdown</button></li>'
                 page_content += "<ol>"
-  #              wodonames = []
-  #              while wodobasefname != "" and talibasefname == wodobasefname[:-16]:
-  #                  wodonames.append(wodobasefname)
-  #                  wodo_i += 1
-  #                  wodobasefname = ""
-  #                  if wodo_i < len(wodofilenames):
-  #                      wodobasefname = os.path.splitext(wodofilenames[wodo_i])[0]
-  #              wodonames.sort(reverse=True)
-  #              for wodoname in wodonames:
-  #                  page_content += '<li><a href="'+config.CONTEXT
-  #                  page_content += '/render'+talireldir+'/'+wodoname+'">'
-  #                  page_content += wodoname+'</a> <button type="submit" formaction="'
-  #                  page_content += config.CONTEXT+'/delete'+talireldir+'/'
-  #                  page_content += wodoname+'">delete</button>&emsp;'
-  #                  page_content += wodo_summary(talireldir+'/'+wodoname)+'</li>'
     
                 (wodo_i, page_content) = wodo_list(talireldir, wodobasefname, talibasefname, wodofilenames, wodo_i, page_content)
                 wodobasefname = ""
@@ -92,15 +77,6 @@ def doIt( environ, start_response ) :
                 placeholdertalibasefname = wodobasefname[:-16]
                 page_content += '<li>'+wodobasefname[:-16]+'</li>'
                 page_content += "<ol>"
-  #              while wodobasefname != "" and placeholdertalibasefname == wodobasefname[:-16]:
-  #                  wodonames.append(wodobasefname)
-  #                  wodo_i += 1
-  #                  wodobasefname = ""
-  #                  if wodo_i < len(wodofilenames):
-  #                      wodobasefname = os.path.splitext(wodofilenames[wodo_i])[0]
-  #              wodonames.sort(reverse=True)
-  #              for wodoname in wodonames:
-  #                  page_content += '<li><a href="'+config.CONTEXT+'/render'+talireldir+'/'+wodoname+'">'+wodoname+'</a>  <button type="submit" formaction="'+config.CONTEXT+'/delete'+talireldir+'/'+wodoname+'">delete</button></li>'
 
                 (wodo_i, page_content) = wodo_list(talireldir, wodobasefname, placeholdertalibasefname, wodofilenames, wodo_i, page_content)
                 wodobasefname = ""
@@ -116,22 +92,22 @@ def doIt( environ, start_response ) :
     
     
 def wodo_list(talireldir, wodobasefname, talibasefname, wodofilenames, wodo_i, page_content):
-                wodonames = []
-                while wodobasefname != "" and talibasefname == wodobasefname[:-16]:
-                    wodonames.append(wodobasefname)
-                    wodo_i += 1
-                    wodobasefname = ""
-                    if wodo_i < len(wodofilenames):
-                        wodobasefname = os.path.splitext(wodofilenames[wodo_i])[0]
-                wodonames.sort(reverse=True)
-                for wodoname in wodonames:
-                    page_content += '<li><a href="'+config.CONTEXT
-                    page_content += '/render'+talireldir+'/'+wodoname+'">'
-                    page_content += wodoname+'</a> <button type="submit" formaction="'
-                    page_content += config.CONTEXT+'/delete'+talireldir+'/'
-                    page_content += wodoname+'">delete</button>&emsp;'
-                    page_content += wodo_summary(talireldir+'/'+wodoname)+'</li>'
-                return (wodo_i, page_content)
+    wodonames = []
+    while wodobasefname != "" and talibasefname == wodobasefname[:-16]:
+        wodonames.append(wodobasefname)
+        wodo_i += 1
+        wodobasefname = ""
+        if wodo_i < len(wodofilenames):
+            wodobasefname = os.path.splitext(wodofilenames[wodo_i])[0]
+    wodonames.sort(reverse=True)
+    for wodoname in wodonames:
+        page_content += '<li><a href="'+config.CONTEXT
+        page_content += '/render'+talireldir+'/'+wodoname+'">'
+        page_content += wodoname+'</a> <button type="submit" formaction="'
+        page_content += config.CONTEXT+'/delete'+talireldir+'/'
+        page_content += wodoname+'">delete</button>&emsp;'
+        page_content += wodo_summary(talireldir+'/'+wodoname)+'</li>'
+    return (wodo_i, page_content)
 
     
 def wodo_summary(wodofilename):
