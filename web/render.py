@@ -154,7 +154,7 @@ def generate_html_table_bodies(parent_id, steps):
     print("generate_html_table_bodies:: parent_id: "+str(parent_id)+", steps: "+str(steps))
     html_table_bodies = ""
     for step in steps:
-        if "a" in step:
+        if "a" in step or "o" in step:
             html_table_bodies += generate_html_table_body(parent_id, step)
         elif "call" in step:
             html_table_bodies += generate_html_table_bodies(generate_sub_id(parent_id,step.get("id", "-")),step.get("steps", "[]"))
@@ -165,7 +165,8 @@ def generate_html_table_bodies(parent_id, steps):
 
 def generate_html_table_body(parent_id, step):
     html_table_body = '<tbody>\n'
-    html_table_body += generate_html_table_row(parent_id, step, "a")
+    if "a" in step:
+        html_table_body += generate_html_table_row(parent_id, step, "a")
     if "o" in step:
         html_table_body += generate_html_table_row(parent_id, step, "o")
     html_table_body += '</tbody>\n'
@@ -173,7 +174,7 @@ def generate_html_table_body(parent_id, step):
 
 def generate_html_table_row(parent_id, step, part):
     html_table_row = '<tr class=' + part + '>\n'
-    part_data = step.get(part, "{}")
+    part_data = step.get(part, {})
     step_part_id = generate_sub_id(parent_id, step.get("id", "-")) + '.' + part
     html_table_row += '<td>' + step_part_id
     html_table_row += '</td>\n'    #id
