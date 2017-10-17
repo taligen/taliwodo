@@ -12,6 +12,7 @@ import re
 import config
 import error
 
+
 def doIt( tlId, environ, start_response ) :
     response_headers = [('Content-type','text/html; charset=utf-8')]
     filename = config.WODODIR+"/"+tlId+".json"
@@ -52,6 +53,7 @@ def generate_html_head(tlId):
 
 def generate_html_body(tlId, filename, d):
     html_body = '<body>\n'
+    html_body += '<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>\n'
     html_body += generate_menubar()
     html_body += generate_html_form(tlId, filename, d)
     html_body += '</body>\n'
@@ -62,12 +64,17 @@ def generate_menubar():
     return html_menubar
 
 def generate_html_form(tlId, filename, d):
-    html_form = '<form id="tasklist_form" action="'+config.CONTEXT+'/render/'+tlId+'" method="post">\n'
-    html_form += '<script> function sendUpdate(button_name) {\n'
+    html_form = '<script> function sendUpdate(button_name) {\n'
     html_form += 'document.getElementById("button_changed").value = button_name;\n'
-    html_form += 'document.getElementById("tasklist_form").submit();\n'
+    # html_form += 'document.getElementById("tasklist_form").submit();\n'
+    html_form += 'var http = new XMLHttpRequest();\n'
+    html_form += 'http.open("POST", document.getElementById("tasklist_form").action, true);\n'
+    html_form += 'http.setRequestHeader("Content-type", "application/json");\n'
+    html_form += 'var data={"one":"candle","three":"family","button_changed":"yes"};\n'
+    html_form += 'http.send(JSON.stringify($("#tasklist_form").serializeArray()));\n'
     html_form += '}\n'
     html_form += '</script>\n'
+    html_form += '<form id="tasklist_form" action="'+config.CONTEXT+'/render/'+tlId+'" method="post">\n'
     html_form += '<h1>'+tlId+'</h1>\n'
     # html_form += '<div style="width: 400px; height: 30px;"><div class="pass" style="width: 20%; height: 100%;"></div></div>'
     html_form += '<table class="context">'
@@ -140,7 +147,7 @@ def generate_html_table(steps):
     return html_table
 
 def generate_html_table_header():
-    return '  <colgroup>\n\
+    return '  <theader><colgroup>\n\
     <col class="id" />\n\
     <col class="description" />\n\
     <col class="pass" />\n\
@@ -148,17 +155,17 @@ def generate_html_table_header():
     <col class="not_done" />\n\
     <col class="age" />\n\
   </colgroup>\n\
-<theader><tr><th>ID</th><th>Description</th><th>Pass</th><th>Fail</th><th>Not Done</th><th>Age</th></tr></theader>\n'
+<tr><th>ID</th><th>Description</th><th>Pass</th><th>Fail</th><th>Not Done</th><th>Age</th></tr></theader>\n'
 
 def generate_html_table_bodies(parent_id, steps):
-    print("generate_html_table_bodies:: parent_id: "+str(parent_id)+", steps: "+str(steps))
+    # print("generate_html_table_bodies:: parent_id: "+str(parent_id)+", steps: "+str(steps))
     html_table_bodies = ""
     for step in steps:
         if "a" in step or "o" in step:
             html_table_bodies += generate_html_table_body(parent_id, step)
         elif "call" in step:
             html_table_bodies += generate_html_table_bodies(generate_sub_id(parent_id,step.get("id", "-")),step.get("steps", "[]"))
-    print("... len(steps): " + str(len(steps)))
+    # print("... len(steps): " + str(len(steps)))
     if len(steps) == 0:
         html_table_bodies = '<tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>'
     return html_table_bodies

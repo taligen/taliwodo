@@ -23,7 +23,13 @@ def doIt( tlId, environ, start_response ) :
       length= 0
   if length!=0:
       body= environ['wsgi.input'].read(length)
-  postlist = parse_qs(body)
+  # postlist = parse_qs(body)
+  # postlist = json.loads(body)
+  postlist = key_value_array_to_dict(json.loads(body))
+  
+  # print("update body is "+body+" and postilst is "+str(postlist) + " content type is "+environ.get('CONTENT_TYPE', 'NA'))
+  # for k in body:
+  #    print("   body.get("+k+") is "+str(body.get(k), "NA"))
   
   json_file = config.WODODIR+"/"+tlId+".json"
   
@@ -47,6 +53,18 @@ def doIt( tlId, environ, start_response ) :
   start_response('303 See Other', [('Location',config.CONTEXT+'/render/'+tlId)])
 
   return ['1']
+  
+  
+def key_value_array_to_dict(input_data):
+    parsed_dict = {}
+    for sub_dict in input_data:
+        key = sub_dict[ "name" ].encode('utf-8')
+        value = sub_dict[ "value" ].encode('utf-8')
+        if key in parsed_dict:
+            parsed_dict[ key ].append( value )
+        else:
+            parsed_dict[ key ] = [ value ]
+    return parsed_dict
   
   
 def count_results(tasklist):
