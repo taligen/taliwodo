@@ -16,4 +16,4 @@ def doIt( tlId, environ, start_response ) :
 
     start_response('303 See Other', [('Location',config.CONTEXT+'/')])
 
-    return ['1']
+    return [b'1']

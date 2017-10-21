@@ -11,6 +11,8 @@ import os
 import re
 import config
 import error
+import urllib.parse
+import html
 
 
 def doIt( tlId, environ, start_response ) :
@@ -208,7 +210,7 @@ def generate_html_radio_button(step_part_id, value, result):
 
 def generate_parameter_list(parameters):
     plist = ""
-    for key, value in parameters.iteritems():
+    for key, value in parameters.items():
         plist += '"' + key + '": "' + value + '", '
     if plist != "":
         plist = plist[:-2]
@@ -227,7 +229,7 @@ def html_escape(text):
     return "".join(html_escape_table.get(c,c) for c in text)
 
 def process_markup(markup):
-    ret = re.sub( r'`([^`]*)`', '<code>\\1</code>', markup );
+    ret = html.escape(re.sub( r'`([^`]*)`', '<code>\\1</code>', re.sub( r'\\\$', '$', markup ) ))
     return ret
 
 def generate_sub_id(parent_id, local_id):
