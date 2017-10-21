@@ -22,7 +22,7 @@ def doIt( tlId, environ, start_response ) :
   except ValueError:
       length= 0
   if length!=0:
-      body= environ['wsgi.input'].read(length)
+      body= environ['wsgi.input'].read(length).decode('utf-8')
   # postlist = parse_qs(body)
   # postlist = json.loads(body)
   postlist = key_value_array_to_dict(json.loads(body))
@@ -52,14 +52,14 @@ def doIt( tlId, environ, start_response ) :
 
   start_response('303 See Other', [('Location',config.CONTEXT+'/render/'+tlId)])
 
-  return ['1']
+  return [b'1']
   
   
 def key_value_array_to_dict(input_data):
     parsed_dict = {}
     for sub_dict in input_data:
-        key = sub_dict[ "name" ].encode('utf-8')
-        value = sub_dict[ "value" ].encode('utf-8')
+        key = sub_dict[ "name" ]
+        value = sub_dict[ "value" ]
         if key in parsed_dict:
             parsed_dict[ key ].append( value )
         else:

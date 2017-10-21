@@ -88,7 +88,7 @@ def doIt( environ, start_response ) :
         page_content += "</form>"
     page_content += '</body>'
 
-    return page_content
+    return [page_content.encode('utf-8')]
     
     
 def wodo_list(talireldir, wodobasefname, talibasefname, wodofilenames, wodo_i, page_content):

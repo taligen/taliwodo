@@ -5,7 +5,7 @@
         "apache2" : {
             "defaultcontext" : "/taliwodo",
             "depends" : [
-                "mod_wsgi2"
+                "mod_wsgi"
             ],
             "apache2modules" : [
                 "wsgi"
