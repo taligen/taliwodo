@@ -229,7 +229,6 @@ def html_escape(text):
     return "".join(html_escape_table.get(c,c) for c in text)
 
 def process_markup(markup):
-    # ret = html.escape(re.sub( r'`([^`]*)`', '<code>\\1</code>', re.sub( r'\\\$', '$', markup ) ))
     ret = re.sub( r'`([^`]*)`', '<code>\\1</code>', re.sub( r'\\\$', '$', html.escape(markup )) )
     return ret
 
