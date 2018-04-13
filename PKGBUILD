@@ -9,7 +9,6 @@ arch=('any')
 license=("GPL")
 options=('!strip')
 depends=('python' 'ubos-rsync-server')
-install=install
 
 package() {
 # Manifest
@@ -21,6 +20,9 @@ package() {
 
 # Generated config file goes here
     mkdir -p ${pkgdir}/ubos/lib/${pkgname}
+
+# taliwodo user
+    install -D -m0644 ${startdir}/sysusers.d/taliwodo -t ${pkgdir}/usr/lib/sysusers.d/
 
 # CSS
     install -D -m0644 ${startdir}/css/*.css -t ${pkgdir}/ubos/share/${pkgname}/css/
