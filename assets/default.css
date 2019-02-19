@@ -1,6 +1,6 @@
 @import url("http://fonts.googleapis.com/css?family=Roboto+Slab:400,700,300,100");
 @import url("http://fonts.googleapis.com/css?family=Roboto:400,700,500,300,100,900");
-body, h1, h2, h3, h4, h5, h6, p, blockquote, pre, hr, dl, dd, ol, ul, figure {
+h1, h2, h3, h4, h5, h6, p, blockquote, pre, hr, dl, dd, ol, ul, figure {
   margin: 0;
   padding: 0;
 }
@@ -15,6 +15,7 @@ body {
   -webkit-text-size-adjust: 100%;
   width: 960px;
   margin: auto;
+  padding: 0 0 200px 0;
 }
 
 pre, tt, code {
