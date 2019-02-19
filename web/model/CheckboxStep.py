@@ -57,8 +57,6 @@ class CheckboxStep(Step):
         if status != self.status:
             now = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
-            print( "XXX setting status from " + str(self.status) + " to " + str(status) + " at " + now )
-
             self.status      = status
             self.lastupdated = now
             self.wodo.set_is_modified( now )
