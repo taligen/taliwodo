@@ -1,42 +1,63 @@
+#!/usr/bin/python
+#
+# Copyright (C) 2017 and later, taligen project.
+# All rights reserved. License: see package.
+#
 
 import cgi
 import cgitb
 
-import config
-import error
-import overview
-import create
-import render
-import update
-import delete
+from handlers.CreateWorkdownHandler import CreateWorkdownHandler
+from handlers.DeleteWorkdownHandler import DeleteWorkdownHandler
+from handlers.UpdateWorkdownHandler import UpdateWorkdownHandler
+from model.TaskList import TaskList
+from model.Workdown import Workdown
+from pages.ErrorPage import ErrorPage
+from pages.NotFoundPage import NotFoundPage
+from pages.OverviewPage import OverviewPage
+from pages.WorkdownPage import WorkdownPage
 
-# All invocations, other than for static files, end up here
+# All routing, other than for static files, is done here.
 
 def application( environ, start_response ) :
-  cgitb.enable()
+    cgitb.enable()
 
-  # print ("config.CONTEXT: " + config.CONTEXT + ", PATH_INFO: " + environ['PATH_INFO'])
-  
-  if environ['PATH_INFO'] == '/' or environ['PATH_INFO'] == '':
-    content = overview.doIt( environ, start_response )
-    
-  elif environ['PATH_INFO'].startswith( '/create/' ) and environ['REQUEST_METHOD'] == 'POST':
-    tlId = environ['PATH_INFO'][len('/create/'):]
-    content = create.doIt( tlId, environ, start_response )
-    
-  elif environ['PATH_INFO'].startswith( '/delete/' ) and environ['REQUEST_METHOD'] == 'POST':
-    tlId = environ['PATH_INFO'][len('/delete/'):]
-    content = delete.doIt( tlId, environ, start_response )
+    path   = environ['PATH_INFO']
+    method = environ['REQUEST_METHOD']
 
-  elif environ['PATH_INFO'].startswith( '/render/' ) :
-    tlId = environ['PATH_INFO'][len('/render/'):]
-    if environ['REQUEST_METHOD'] == 'POST' :
-      content = update.doIt( tlId, environ, start_response )
-    else :
-      content = render.doIt( tlId, environ, start_response )
-  else :
-    content = error.doIt( '404 Not Found', environ, start_response )
-    content += "<p>File not found: " + environ['PATH_INFO'] + "</p>\n"
+    handler = None
+    form = cgi.FieldStorage(
+            fp                = environ['wsgi.input'],
+            environ           = environ,
+            keep_blank_values = True )
 
-  return content
+    verb = form.getvalue( 'verb' )
 
+    if path == '/':
+       handler = OverviewPage( environ )
+
+    else:
+        tl   = TaskList.loadFromUrlIfExists( path )
+        wodo = Workdown.loadFromUrlIfExists( path )
+
+        # print( "XXX tl=" + str(tl) + ", wodo=" + str(wodo) + ", path=" + path )
+
+        if tl:
+            if method == 'POST':
+                if verb == 'createworkdown':
+                    handler = CreateWorkdownHandler( environ, form, tl )
+
+        elif wodo:
+            if method == 'POST':
+                if verb == 'deleteworkdown':
+                    handler = DeleteWorkdownHandler( environ, form, wodo )
+                elif verb == 'updateworkdown':
+                    handler = UpdateWorkdownHandler( environ, form, wodo )
+            else:
+                handler = WorkdownPage( environ, wodo )
+
+    if handler == None:
+        handler = NotFoundPage( environ )
+
+    content = handler.handle( start_response )
+    return content

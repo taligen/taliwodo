@@ -1,10 +1,12 @@
-Alias ${appconfig.context}/css/ ${package.codedir}/css/
+# Have Apache serve the static assets
+Alias ${appconfig.context}/assets/ ${package.codedir}/assets/
 
-WSGIScriptAlias ${appconfig.context} ${package.codedir}/web/index.py
+# Everything else gets handed over to Python
+WSGIScriptAlias ${appconfig.contextorslash} ${package.codedir}/web/index.py
 
 WSGIDaemonProcess ${package.name}-${appconfig.appconfigid} processes=2 threads=10 \
        umask=0007 inactivity-timeout=900 maximum-requests=1000 \
-       python-path=${package.codedir}/web:${appconfig.datadir}:/usr/lib/python3.6/site-packages/
+       python-path=${package.codedir}/web:${appconfig.datadir}:/usr/lib/python3.7/site-packages/
 WSGIProcessGroup ${package.name}-${appconfig.appconfigid}
 
 <Directory "${package.codedir}">

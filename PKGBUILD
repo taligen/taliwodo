@@ -22,12 +22,13 @@ package() {
     mkdir -p ${pkgdir}/ubos/lib/${pkgname}
 
 # taliwodo user
-    install -D -m0644 ${startdir}/sysusers.d/taliwodo -t ${pkgdir}/usr/lib/sysusers.d/
+    install -D -m0644 ${startdir}/sysusers.d/* -t ${pkgdir}/usr/lib/sysusers.d/
 
-# CSS
-    install -D -m0644 ${startdir}/css/*.css -t ${pkgdir}/ubos/share/${pkgname}/css/
+# CSS, Javascript
+    install -D -m0644 ${startdir}/assets/* -t ${pkgdir}/ubos/share/${pkgname}/assets/
 
 # Code
     install -D -m0755 ${startdir}/web/*.py -t ${pkgdir}/ubos/share/${pkgname}/web/
+    for d in handlers model pages; do install -D -m0755 ${startdir}/web/$d/*.py -t ${pkgdir}/ubos/share/${pkgname}/web/$d/ ; done
     install -D -m0755 ${startdir}/tmpl/*.tmpl -t ${pkgdir}/ubos/share/${pkgname}/tmpl/
 }

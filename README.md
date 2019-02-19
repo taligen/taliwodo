@@ -56,6 +56,23 @@ ubos-admin createsite
    and answer the questions. The name of the app is `taliworkdown`, the hostname
    is `taliworkdown.example.com`.
 
-5. Visit your deployed application. WIth a browser, to go 
+5. Visit your deployed application. WIth a browser, to go
    `http://taligen.example.com/` or whatever your hostname you chose.
+
+# Implementation details
+
+The URL namespace is as follows:
+
+ * `/`           => overview page
+ * `/tl/<xxx>`   => Task List with ID `<xxx>`
+ * `/wodo/<yyy>` => Workdown with ID `<yyy>`
+
+The files are stored in two directories:
+
+ * `TALIDIR`: contains the task lists, with extension `.tl-json`, such as
+   `solve-world-hunger.tl-json`.
+
+ * `WODODIR`: workdowns created from a Task List are contained in a directory
+    named according to the task list it was created from, and have extension
+    `.wodo-json`. Example: `solve-world-hunger/attempt-1-free-money.wodo-json`.
 
