@@ -26,46 +26,42 @@ class WorkdownPage(OkHtmlPage):
  <input type="hidden" name="verb" value="update">
  <input type="hidden" name="wodo_id" value="{ wodo.get_wodo_id() }">
 
- <table class="wodo-summary">
-  <tr>
-   <th>Created from task list:</th>
-   <td class="tl-name">{ wodo.get_name() }</td>
-   <th>Created on:</th>
-   <td>{ wodo.get_created() }</td>
-  </tr>
-  <tr>
-   <th>With parameters:</th>
-   <td>
+ <div class="wodo-summary">
+  <table id="wodo-summary">
+   <tr>
+    <th>From task list:</th>
+    <td class="tl-name">{ wodo.get_name() }</td>
+    <th>Created on:</th>
+    <td>{ wodo.get_created() }</td>
+   </tr>
+   <tr>
+    <th>With parameters:</th>
+    <td>
 """
         pars = wodo.get_parameters()
         if pars:
-            ret += "    <ol class=\"parameters\">\n";
+            ret += "     <ol class=\"parameters\">\n";
             for p in pars:
-                ret += f"     <li>{p} = {pars[p]}</li>\n";
-            ret += "    </ol>\n";
+                ret += f"      <li>{p} = {pars[p]}</li>\n";
+            ret += "     </ol>\n";
 
         stats = wodo.calc_checkbox_steps_stats()
 
         ret += f"""
-   </td>
-   <th>Last updated:</th>
-   <td>{ wodo.get_lastupdated() }</td>
-  </tr>
-  <tr>
-   <th>Steps:</th>
-   <td colspan="3" class="wodo-progress">
-    { self.sliderHtml( stats ) }
-    { stats['Passed']  } passed,
-    { stats['Failed']  } failed,
-    { stats['Skipped'] } skipped
-    (of { stats['Total'] })
-   </td>
-  </tr>
- </table>
+    </td>
+    <th>Last updated:</th>
+    <td data-lastupdated="{ wodo.get_lastupdated() }"></td>
+   </tr>
+   <tr>
+    <th>Status:</th>
+    <td colspan="3" class="wodo-progress" data-total="{ stats['Total'] }" data-passed="{ stats['Passed'] }" data-failed="{ stats['Failed'] }" data-skipped="{ stats['Skipped'] }" data-completed="{ stats['Completed'] }"></td>
+   </tr>
+  </table>
+ </div>
 
- <h1>Workdown</h1>
+ <h1>Workdown: { wodo.get_name() } &ndash; { wodo.get_created() }</h1>
 
- <table class="wodo-steps">
+ <table id="wodo-steps">
   <colgroup>
    <col class="id" />
    <col class="description" />
@@ -149,13 +145,4 @@ class WorkdownPage(OkHtmlPage):
         ret = re.sub( '`([^`]*)`', '<code>\\1</code>', ret ) # Single-` means <code> without linebreaks
 
 
-        return ret
-
-
-    def sliderHtml( self, stats ):
-        ret  = "    <div class=\"wodo-progress\">\n"
-        ret += "     <div class=\"wodo-progress-passed\" style=\"width: "  + str( 100.0 * stats['Passed']  / stats['Total'] ) + "%\"></div>\n";
-        ret += "     <div class=\"wodo-progress-failed\" style=\"width: "  + str( 100.0 * stats['Failed']  / stats['Total'] ) + "%\"></div>\n";
-        ret += "     <div class=\"wodo-progress-skipped\" style=\"width: " + str( 100.0 * stats['Skipped'] / stats['Total'] ) + "%\"></div>\n";
-        ret += "    </div>\n"
         return ret

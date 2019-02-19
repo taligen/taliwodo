@@ -58,20 +58,26 @@ table.overview ul li {
   list-style-type: none
 }
 
-table.wodo-summary {
-  width: 60%;
-  margin-top: 0;
+div.wodo-summary {
+    position: fixed;
+    background: rgb(255,255,255,0.9);
+    right: 10px;
+    bottom: 10px;
+    padding: 10px;
+}
+table#wodo-summary {
+  width: 600px;
   font-size: small;
   color: #404040;
-  float: right;
+  margin: 0;
 }
-table.wodo-summary th {
+table#wodo-summary th {
   text-align: left;
 }
-table.wodo-summary ol li {
+table#wodo-summary ol li {
   list-style-type: none
 }
-table.wodo-summary td.tl-name {
+table#wodo-summary td.tl-name {
   font-weight: bold;
   text-decoration: underline;
 }
@@ -82,73 +88,79 @@ td.wodo-progress {
 
 div.wodo-progress {
   width: 100%;
-  z-index: 100;
+  background: #f0f0f0;
+  border: 1px solid #a0a0a0;
 }
-div.wodo-progress-passed {
-  background: green;
+
+div.wodo-progress > span {
+  padding: 0;
+  border-right: 1px solid #a0a0a0;
 }
-div.wodo-progress-failed {
-  background: red;
+span.wodo-progress-passed {
+  background: #00d000;
 }
-div.wodo-progress-skipped {
-  background: yellow;
+span.wodo-progress-failed {
+  background: #ff2020;
+}
+span.wodo-progress-skipped {
+  background: #ffff00;
 }
 
 
-table.wodo-steps {
+table#wodo-steps {
   width: 100%;
 }
 
-table.wodo-steps td,
-table.wodo-steps th {
+table#wodo-steps td,
+table#wodo-steps th {
   border-color: #c0c0c0;
 }
 
-table.wodo-steps td:first-child a {
+table#wodo-steps td:first-child a {
   color: #808080;
   text-decoration: none;
 }
 
-table.wodo-steps td:first-child a:hover {
+table#wodo-steps td:first-child a:hover {
   text-decoration: underline;
 }
 
-table.wodo-steps tr.h {
+table#wodo-steps tr.h {
   background: #f0f0ff;
 }
 
-table.wodo-steps tr.h td:nth-child(2) {
+table#wodo-steps tr.h td:nth-child(2) {
   padding: 30px 0 30px 50px;
   font-size: 120%;
   font-weight: bold;
   color: #4040ff;
 }
-table.wodo-steps tr.h td:nth-child(2)::before {
+table#wodo-steps tr.h td:nth-child(2)::before {
   content: "\2605   "
 }
-table.wodo-steps tr.h td:nth-child(2)::after {
+table#wodo-steps tr.h td:nth-child(2)::after {
   content: "   \2605"
 }
 
-table.wodo-steps td:nth-child(3),
-table.wodo-steps td:nth-child(4),
-table.wodo-steps td:nth-child(5) {
+table#wodo-steps td:nth-child(3),
+table#wodo-steps td:nth-child(4),
+table#wodo-steps td:nth-child(5) {
   width: 60px;
   text-align: center;
 }
 
-table.wodo-steps td:nth-child(6) {
+table#wodo-steps td:nth-child(6) {
   width: 80px;
   text-align: center;
   font-size: small;
 }
 
-table.wodo-steps col.passed {
+table#wodo-steps col.passed {
   background: #ccffcc;
 }
-table.wodo-steps col.failed {
+table#wodo-steps col.failed {
   background: #ffcccc;
 }
-table.wodo-steps col.skipped {
+table#wodo-steps col.skipped {
   background: #ffffcc;
 }

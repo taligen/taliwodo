@@ -16,17 +16,25 @@ class UpdateWorkdownHandler(Handler):
 
 
     def handle( self, start_response ):
-        name  = self.form['name'].value
-        value = self.form['value'].value
+        stepname   = self.form['stepname'].value
+        stepstatus = self.form['stepstatus'].value
 
-        if name.startswith( 'wodo-step-status-' ):
-            stepId = name[ len( 'wodo-step-status-' ) : ]
+        if stepname.startswith( 'wodo-step-status-' ):
+            stepId = stepname[ len( 'wodo-step-status-' ) : ]
             step   = self.wodo.get_step_by_id( stepId )
             if step:
-                step.set_status( value )
+                step.set_status( stepstatus )
                 self.wodo.saveIfNeeded()
 
-            content = 'lastupdated=' + step.get_lastupdated()
+            stats = self.wodo.calc_checkbox_steps_stats()
+
+            content = 'steplastupdated='           + step.get_lastupdated()
+            content += '&workdownlastupdated='     + self.wodo.get_lastupdated()
+            content += '&workdownsstepscompleted=' + str( stats['Completed'] )
+            content += '&workdownstepspassed='     + str( stats['Passed']    )
+            content += '&workdownstepsfailed='     + str( stats['Failed']    )
+            content += '&workdownstepsskipped='    + str( stats['Skipped']   )
+
         else:
             content = ''
 
