@@ -30,20 +30,65 @@ function recalculateWorkdownStats() {
         wodoSummaryTd = wodoSummaryTds[i];
         if( wodoSummaryTd.hasAttribute( 'data-total' )) {
 
+            // need to make thin bars wide enough so they can be seen, without creating overflow
             function perc( attr ) {
-                return Math.round( 100.0 * wodoSummaryTd.getAttribute( attr ) / wodoSummaryTd.getAttribute( 'data-total' ));
+                return 100.0 * wodoSummaryTd.getAttribute( attr ) / wodoSummaryTd.getAttribute( 'data-total' );
             }
 
-            var innerText  = "    <div class=\"wodo-progress\">\n";
-            innerText     += "     <span class=\"wodo-progress-passed\" style=\"padding-left: "  + perc( 'data-passed'  ) + "%\"></span>\n";
-            innerText     += "     <span class=\"wodo-progress-failed\" style=\"padding-left: "  + perc( 'data-failed'  ) + "%\"></span>\n";
-            innerText     += "     <span class=\"wodo-progress-skipped\" style=\"padding-left: " + perc( 'data-skipped' ) + "%\"></span>\n";
-            innerText     += "    </div>\n"
+            var passedWidth  = perc( 'data-passed'  );
+            var failedWidth  = perc( 'data-failed'  );
+            var skippedWidth = perc( 'data-skipped'  );
 
-            innerText     += 'Passed:&nbsp;' + wodoSummaryTd.getAttribute( 'data-passed' );
-            innerText     += ', failed:&nbsp;' + wodoSummaryTd.getAttribute( 'data-failed' );
-            innerText     += ', skipped:&nbsp;' + wodoSummaryTd.getAttribute( 'data-skipped' );
-            innerText     += ' (of:&nbsp;' + wodoSummaryTd.getAttribute( 'data-total' ) + ')';
+            var adjustUp   = 0; // pixels we widened
+            var adjustDown = 0; // number of wide bars that can potentially be adjusted down
+            var delta      = 2;
+
+            if( passedWidth > 0 && passedWidth < delta ) {
+                passedWidth += delta;
+                adjustUp    += delta;
+            } else if( passedWidth > 25 ) {
+                ++adjustDown;
+            }
+            if( failedWidth > 0 && failedWidth < delta ) {
+                failedWidth += delta;
+                adjustUp    += delta;
+            } else if( failedWidth > 25 ) {
+                ++adjustDown;
+            }
+            if( skippedWidth > 0 && skippedWidth < delta ) {
+                skippedWidth += delta;
+                adjustUp     += delta;
+            } else if( skippedWidth > 25 ) {
+                ++adjustDown;
+            }
+            if( adjustUp > 0 && adjustDown > 0 ) {
+                if( passedWidth > 25 ) {
+                    passedWidth -= adjustUp/adjustDown;
+                }
+                if( failedWidth > 25 ) {
+                    failedWidth -= adjustUp/adjustDown;
+                }
+                if( skippedWidth > 25 ) {
+                    skippedWidth -= adjustUp/adjustDown;
+                }
+            }
+
+            var innerText = "    <div class=\"wodo-progress\">\n";
+            if( passedWidth > 0 ) {
+                innerText += "     <span class=\"wodo-progress-passed\" style=\"padding-left: "  + Math.round( passedWidth  ) + "%\"></span>\n";
+            }
+            if( failedWidth > 0 ) {
+                innerText += "     <span class=\"wodo-progress-failed\" style=\"padding-left: "  + Math.round( failedWidth  ) + "%\"></span>\n";
+            }
+            if( skippedWidth > 0 ) {
+                innerText += "     <span class=\"wodo-progress-skipped\" style=\"padding-left: " + Math.round( skippedWidth ) + "%\"></span>\n";
+            }
+            innerText += "    </div>\n"
+
+            innerText += 'Passed:&nbsp;' + wodoSummaryTd.getAttribute( 'data-passed' );
+            innerText += ', failed:&nbsp;' + wodoSummaryTd.getAttribute( 'data-failed' );
+            innerText += ', skipped:&nbsp;' + wodoSummaryTd.getAttribute( 'data-skipped' );
+            innerText += ' (of:&nbsp;' + wodoSummaryTd.getAttribute( 'data-total' ) + ')';
             wodoSummaryTd.innerHTML = innerText;
         }
     }
