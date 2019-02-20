@@ -5,6 +5,7 @@
 #
 
 import re
+from utils import formatTaligenString
 from model.CheckboxStep import CheckboxStep
 from pages.OkHtmlPage import OkHtmlPage
 
@@ -93,7 +94,7 @@ class WorkdownPage(OkHtmlPage):
                     lastupdated = '-' # empty string may not work reliable vs does not exist
 
                 ret += f"""
-   <td>{ self.format( step.get_content()) }</td>
+   <td>{ formatTaligenString( step.get_content()) }</td>
 """
 
                 for value in ( CheckboxStep.Status.PASSED, CheckboxStep.Status.FAILED, CheckboxStep.Status.SKIPPED ):
@@ -113,7 +114,7 @@ class WorkdownPage(OkHtmlPage):
 """
             else:
                 ret += f"""
-   <td colspan="5">{ self.format( step.get_content()) }</td>
+   <td colspan="5">{ formatTaligenString( step.get_content()) }</td>
 """
 
             ret += f"""
@@ -124,25 +125,4 @@ class WorkdownPage(OkHtmlPage):
  </table>
 </form>
 """
-        return ret
-
-
-    def format( self, s ):
-        """
-        Format a Taligen-formatted string in HTML
-        """
-        ret = s
-
-        for ( key, value ) in {
-                "&": "&amp;",
-                '"': "&quot;",
-                "'": "&apos;",
-                ">": "&gt;",
-                "<": "&lt;" }.items() :
-            ret = ret.replace( key, value )
-
-        ret = re.sub( '``([^`]*)``', '<pre>\\1</pre>', ret ) # Double-`` means <pre> with linebreaks
-        ret = re.sub( '`([^`]*)`', '<code>\\1</code>', ret ) # Single-` means <code> without linebreaks
-
-
         return ret

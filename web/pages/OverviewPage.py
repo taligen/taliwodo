@@ -9,8 +9,8 @@ import config
 from pages.OkHtmlPage import OkHtmlPage
 from model.TaskList import TaskList
 from model.Workdown import Workdown
-
 import datetime
+from utils import formatTaligenString
 
 class OverviewPage(OkHtmlPage):
 
@@ -34,8 +34,8 @@ class OverviewPage(OkHtmlPage):
 <table class="overview">
  <thead>
   <tr>
-   <th colspan="2">Task List</th>
-   <th colspan="2">Workdown</th>
+   <th class="tasklist">Task List</th>
+   <th class="workdown">Workdown</th>
    <th>Status</th>
   </tr>
  </thead>
@@ -53,23 +53,32 @@ class OverviewPage(OkHtmlPage):
                     else:
                         wodos_for_tl = dict()
 
-                    if wodos_for_tl:
+                    if len(wodos_for_tl) > 1:
                         span = ' rowspan="' + str( len( wodos_for_tl )) + '"'
                     else:
                         span = ''
 
                     ret += f"""
   <tr>
-   <td{span}>{tl.get_name()}</td>
-   <td{span}>
+   <td{ span }>
 """
                     if tl:
                         ret += f"""
-    <form method="post" action="{ config.CONTEXT + tl.toUrl() }">
-     <input type="hidden" name="verb" value="createworkdown">
-     <button type="submit">new workdown</button>
-    </form>
+    <div class="slide-in">
+     <form method="post" action="{ config.CONTEXT + tl.toUrl() }">
+      <input type="hidden" name="verb" value="createworkdown">
+      <button type="submit">new workdown</button>
+     </form>
+    </div>
+    <h2 class="tasklist">{ formatTaligenString( tl.get_name() ) }</h2>
 """
+                        pars = tl.get_parameters()
+                        if pars:
+                            ret += "     <ol class=\"parameters\">\n";
+                            for p in pars:
+                                ret += f"      <li>{p} = {pars[p]}</li>\n";
+                            ret += "     </ol>\n";
+
                     else:
                         ret += "Not available any more"
 
@@ -85,17 +94,16 @@ class OverviewPage(OkHtmlPage):
 
                             ret += sep
                             ret += f"""
-   <td><a href="{ config.CONTEXT + wodo.toUrl() }">{wodo.get_created()}</a></td>
    <td>
-    <form method="post" action="{ config.CONTEXT + wodo.toUrl() }">
-     <input type="hidden" name="verb" value="deleteworkdown">
-     <button type="submit">delete</button>
-    </form>
+    <div class="slide-in">
+     <form method="post" action="{ config.CONTEXT + wodo.toUrl() }">
+      <input type="hidden" name="verb" value="deleteworkdown">
+      <button type="submit">delete</button>
+     </form>
+    </div>
+    <h2><a href="{ config.CONTEXT + wodo.toUrl() }">{wodo.get_created()}</a></h2>
    </td>
-   <td>
-    <ul>
-     <li>Status: { stats['Completed'] } of { stats['Total'] } ({ round( 100.0 * stats['Completed'] / stats['Total'] ) }%)</li>
-    </ul>
+   <td class="wodo-progress" data-total="{ stats['Total'] }" data-passed="{ stats['Passed'] }" data-failed="{ stats['Failed'] }" data-skipped="{ stats['Skipped'] }" data-completed="{ stats['Completed'] }"></td>
    </td>
 """
                             sep = """
@@ -105,7 +113,6 @@ class OverviewPage(OkHtmlPage):
 
                     else:
                         ret += f"""
-   <td>&ndash;</td>
    <td>&ndash;</td>
    <td>&ndash;</td>
 """

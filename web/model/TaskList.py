@@ -38,6 +38,10 @@ class TaskList:
         return self.lastupdated
 
 
+    def get_parameters( self ):
+        return self.json_data['parameters']
+
+
     def loadIfExists( tl_id ):
         """
         Factory method: create this TaskList by loading from a file,

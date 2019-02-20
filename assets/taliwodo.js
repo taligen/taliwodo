@@ -18,7 +18,13 @@ function recalculateWorkdownAges() {
 
 function recalculateWorkdownStats() {
     var wodoSummaryTr  = document.getElementById( 'wodo-summary' );
-    var wodoSummaryTds = wodoSummaryTr.getElementsByTagName( 'td' );
+    var wodoSummaryTds;
+    if( wodoSummaryTr ) {
+        // In a Workdown Page:
+        wodoSummaryTds = wodoSummaryTr.getElementsByTagName( 'td' );
+    } else {
+        wodoSummaryTds = document.getElementsByTagName( 'td' );
+    }
 
     for( var i=0 ; i<wodoSummaryTds.length ; ++i ) {
         wodoSummaryTd = wodoSummaryTds[i];
@@ -34,10 +40,10 @@ function recalculateWorkdownStats() {
             innerText     += "     <span class=\"wodo-progress-skipped\" style=\"padding-left: " + perc( 'data-skipped' ) + "%\"></span>\n";
             innerText     += "    </div>\n"
 
-            innerText     += 'Passed: ' + wodoSummaryTd.getAttribute( 'data-passed' );
-            innerText     += ', failed: ' + wodoSummaryTd.getAttribute( 'data-failed' );
-            innerText     += ', skipped: ' + wodoSummaryTd.getAttribute( 'data-skipped' );
-            innerText     += ' (of: ' + wodoSummaryTd.getAttribute( 'data-total' ) + ')';
+            innerText     += 'Passed:&nbsp;' + wodoSummaryTd.getAttribute( 'data-passed' );
+            innerText     += ', failed:&nbsp;' + wodoSummaryTd.getAttribute( 'data-failed' );
+            innerText     += ', skipped:&nbsp;' + wodoSummaryTd.getAttribute( 'data-skipped' );
+            innerText     += ' (of:&nbsp;' + wodoSummaryTd.getAttribute( 'data-total' ) + ')';
             wodoSummaryTd.innerHTML = innerText;
         }
     }
