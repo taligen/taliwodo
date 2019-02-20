@@ -4,6 +4,7 @@
 # All rights reserved. License: see package.
 #
 
+import config
 import re
 from utils import formatTaligenString
 from model.CheckboxStep import CheckboxStep
@@ -23,6 +24,7 @@ class WorkdownPage(OkHtmlPage):
         wodo = self.wodo
 
         ret = f"""
+<div class="nav"><a href="{ config.CONTEXT }/">Front page</a></div>
 <form id="workdown_form" method="post">
  <input type="hidden" name="verb" value="update">
  <input type="hidden" name="wodo_id" value="{ wodo.get_wodo_id() }">
