@@ -26,6 +26,7 @@ pre, tt, code {
 }
 tt, code {
   white-space: nowrap;
+  font-size: small;
 }
 
 h1 {
@@ -133,6 +134,10 @@ table#wodo-steps td:first-child a {
 
 table#wodo-steps td:first-child a:hover {
   text-decoration: underline;
+}
+
+table#wodo-steps td:nth-child(2) {
+  overflow: auto;
 }
 
 table#wodo-steps tr.h {
