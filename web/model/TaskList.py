@@ -21,8 +21,10 @@ class TaskList:
         self.lastupdated = lastupdated
         self.json_data   = json_data
 
+
     def get_id( self ):
         return self.id
+
 
     def get_name( self ):
         """
@@ -60,6 +62,7 @@ class TaskList:
 
         return TaskList( tl_id, tl_file, lastupdated, json_data )
 
+
     def loadFromUrlIfExists( path ):
         """
         Factory method: create this TaskList by loading from a URL
@@ -70,6 +73,7 @@ class TaskList:
             return TaskList.loadIfExists( tl_id )
         else:
             return None
+
 
     def loadAll() :
         """
@@ -90,6 +94,7 @@ class TaskList:
             ret[tl_id] = tl
 
         return ret
+
 
     def createWorkdown( self ):
         wodo_id = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")

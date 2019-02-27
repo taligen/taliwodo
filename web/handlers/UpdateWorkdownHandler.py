@@ -31,6 +31,7 @@ class UpdateWorkdownHandler(Handler):
             content = 'steplastupdated='           + step.get_lastupdated()
             content += '&workdownlastupdated='     + self.wodo.get_lastupdated()
             content += '&workdownsstepscompleted=' + str( stats['Completed'] )
+            content += '&workdownstepsstarted='    + str( stats['Started']    )
             content += '&workdownstepspassed='     + str( stats['Passed']    )
             content += '&workdownstepsfailed='     + str( stats['Failed']    )
             content += '&workdownstepsskipped='    + str( stats['Skipped']   )

@@ -6,9 +6,9 @@
 
 import config
 import re
-from utils import formatTaligenString
 from model.CheckboxStep import CheckboxStep
 from pages.OkHtmlPage import OkHtmlPage
+from utils import formatTaligenString
 
 class WorkdownPage(OkHtmlPage):
     def __init__( self, environ, wodo ):
@@ -33,7 +33,7 @@ class WorkdownPage(OkHtmlPage):
   <table id="wodo-summary">
    <tr>
     <th>From task list:</th>
-    <td class="tl-name">{ wodo.get_name() }</td>
+    <td class="tl-name">{ formatTaligenString( wodo.get_name()) }</td>
     <th>Created on:</th>
     <td>{ wodo.get_created() }</td>
    </tr>
@@ -62,12 +62,13 @@ class WorkdownPage(OkHtmlPage):
   </table>
  </div>
 
- <h1>Workdown: { wodo.get_name() } &ndash; { wodo.get_created() }</h1>
+ <h1>Workdown: { formatTaligenString( wodo.get_name() ) } &ndash; { wodo.get_created() }</h1>
 
  <table id="wodo-steps">
   <colgroup>
    <col class="id" />
    <col class="description" />
+   <col class="started" />
    <col class="passed" />
    <col class="failed" />
    <col class="skipped" />
@@ -76,10 +77,11 @@ class WorkdownPage(OkHtmlPage):
   <tr>
    <th>ID</th>
    <th>Description</th>
+   <th>Started</th>
    <th>Pass</th>
    <th>Fail</th>
    <th>Skipped</th>
-   <th>Age</th>
+   <th>When</th>
   </tr>
 """
         for step in wodo.get_steps() :
@@ -99,7 +101,10 @@ class WorkdownPage(OkHtmlPage):
    <td>{ formatTaligenString( step.get_content()) }</td>
 """
 
-                for value in ( CheckboxStep.Status.PASSED, CheckboxStep.Status.FAILED, CheckboxStep.Status.SKIPPED ):
+                for value in ( CheckboxStep.Status.STARTED,
+                               CheckboxStep.Status.PASSED,
+                               CheckboxStep.Status.FAILED,
+                               CheckboxStep.Status.SKIPPED ):
                     if step.get_status().value == value.value :
                         checked = ' checked'
                     else:

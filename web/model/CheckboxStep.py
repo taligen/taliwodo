@@ -7,6 +7,7 @@ from model.Step import Step
 class CheckboxStep(Step):
     class Status(Enum):
         NOT_DONE = 'NotDone'
+        STARTED  = 'Started'
         PASSED   = 'Passed'
         FAILED   = 'Failed'
         SKIPPED  = 'Skipped'
@@ -19,6 +20,8 @@ class CheckboxStep(Step):
             s = s.lower()
             if s == CheckboxStep.Status.NOT_DONE.value.lower():
                 return CheckboxStep.Status.NOT_DONE
+            if s == CheckboxStep.Status.STARTED.value.lower():
+                return CheckboxStep.Status.STARTED
             if s == CheckboxStep.Status.PASSED.value.lower():
                 return CheckboxStep.Status.PASSED
             if s == CheckboxStep.Status.FAILED.value.lower():
@@ -34,6 +37,7 @@ class CheckboxStep(Step):
         self.lastupdated = lastupdated
         self.status      = status
 
+
     def get_lastupdated( self ):
         return self.lastupdated
 
@@ -45,7 +49,10 @@ class CheckboxStep(Step):
     def set_status( self, status ):
         status = status.lower()
 
-        if status == 'passed':
+        if status == 'started':
+            status = CheckboxStep.Status.STARTED
+
+        elif status == 'passed':
             status = CheckboxStep.Status.PASSED
 
         elif status == 'failed':

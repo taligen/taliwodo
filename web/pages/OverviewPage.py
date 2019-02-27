@@ -42,9 +42,16 @@ class OverviewPage(OkHtmlPage):
  <tbody>
 """
 
-        for haveTl in [ 1 ]: # , 0 ]: # first the Tls we have, then Wodos withoutu Tls
+        def tlOrder(tlIndex):
+            tl = tls[tlIndex]
+            if tl:
+                return tl.get_lastupdated()
+            else:
+                return ''
 
-            for tl_id in sorted( tls, reverse=True, key=lambda i : tls[i].get_lastupdated() ):
+        for haveTl in [ 1, 0 ]: # first the Tls we have, then Wodos withoutu Tls
+
+            for tl_id in sorted( tls, reverse=True, key=tlOrder ):
                 tl = tls[ tl_id ]
 
                 if ( haveTl == 1 and tl ) or ( haveTl == 0 and not tl ) :
